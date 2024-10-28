@@ -11,7 +11,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -33,12 +35,13 @@ public class Main extends JFrame implements MouseListener {
     // Variable Declaration
     private static final int Height = 700;
     private static final int Width = 1110;
-    private static Rook wr01, wr02, br01, br02;
-    private static Knight wk01, wk02, bk01, bk02;
-    private static Bishop wb01, wb02, bb01, bb02;
-    private static Pawn wp[], bp[];
-    private static Queen wq, bq;
-    private static King wk, bk;
+    private static List<Rook> whiteRooks, blackRooks;
+    private static List<Knight> whiteKnights, blackKnights;
+    private static List<Bishop> whiteBishops, blackBishops;
+    private static List<Pawn> whitePawns, blackPawns;
+    private static List<Queen> whiteQueens, blackQueens;
+    private static King whiteKing;
+    private static King blackKing;
     private Cell c, previous;
     private int chance = 0;
     private Cell boardState[][];
@@ -74,27 +77,27 @@ public class Main extends JFrame implements MouseListener {
     public static void main(String[] args) {
 
         // variable initialization
-        wr01 = new Rook("WR01", "White_Rook.png", 0);
-        wr02 = new Rook("WR02", "White_Rook.png", 0);
-        br01 = new Rook("BR01", "Black_Rook.png", 1);
-        br02 = new Rook("BR02", "Black_Rook.png", 1);
-        wk01 = new Knight("WK01", "White_Knight.png", 0);
-        wk02 = new Knight("WK02", "White_Knight.png", 0);
-        bk01 = new Knight("BK01", "Black_Knight.png", 1);
-        bk02 = new Knight("BK02", "Black_Knight.png", 1);
-        wb01 = new Bishop("WB01", "White_Bishop.png", 0);
-        wb02 = new Bishop("WB02", "White_Bishop.png", 0);
-        bb01 = new Bishop("BB01", "Black_Bishop.png", 1);
-        bb02 = new Bishop("BB02", "Black_Bishop.png", 1);
-        wq = new Queen("WQ", "White_Queen.png", 0);
-        bq = new Queen("BQ", "Black_Queen.png", 1);
-        wk = new King("WK", "White_King.png", 0, 7, 3);
-        bk = new King("BK", "Black_King.png", 1, 0, 3);
-        wp = new Pawn[8];
-        bp = new Pawn[8];
+        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0), new Rook("WR02", "White_Rook.png", 0));
+        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1), new Rook("BR02", "Black_Rook.png", 1));
+        whiteKnights = Arrays.asList(new Knight("WK01", "White_Knight.png", 0),
+                new Knight("WK02", "White_Knight.png", 0));
+        blackKnights = Arrays.asList(new Knight("BK01", "Black_Knight.png", 1),
+                new Knight("BK02", "Black_Knight.png", 1));
+        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0),
+                new Bishop("WB02", "White_Bishop.png", 0));
+        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1),
+                new Bishop("BB02", "Black_Bishop.png", 1));
+        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0));
+        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1));
+        whiteKing = new King("WK", "White_King.png", 0, 7, 3);
+        blackKing = new King("BK", "Black_King.png", 1, 0, 3);
+        whitePawns = new ArrayList<Pawn>();
         for (int i = 0; i < 8; i++) {
-            wp[i] = new Pawn("WP0" + (i + 1), "White_Pawn.png", 0);
-            bp[i] = new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1);
+            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0));
+        }
+        blackPawns = new ArrayList<Pawn>();
+        for (int i = 0; i < 8; i++) {
+            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1));
         }
 
         // Setting up the board
@@ -209,41 +212,41 @@ public class Main extends JFrame implements MouseListener {
             for (int j = 0; j < 8; j++) {
                 P = null;
                 if (i == 0 && j == 0)
-                    P = br01;
+                    P = blackRooks.get(0);
                 else if (i == 0 && j == 7)
-                    P = br02;
+                    P = blackRooks.get(1);
                 else if (i == 7 && j == 0)
-                    P = wr01;
+                    P = whiteRooks.get(0);
                 else if (i == 7 && j == 7)
-                    P = wr02;
+                    P = whiteRooks.get(1);
                 else if (i == 0 && j == 1)
-                    P = bk01;
+                    P = blackKnights.get(0);
                 else if (i == 0 && j == 6)
-                    P = bk02;
+                    P = blackKnights.get(1);
                 else if (i == 7 && j == 1)
-                    P = wk01;
+                    P = whiteKnights.get(0);
                 else if (i == 7 && j == 6)
-                    P = wk02;
+                    P = whiteKnights.get(1);
                 else if (i == 0 && j == 2)
-                    P = bb01;
+                    P = blackBishops.get(0);
                 else if (i == 0 && j == 5)
-                    P = bb02;
+                    P = blackBishops.get(1);
                 else if (i == 7 && j == 2)
-                    P = wb01;
+                    P = whiteBishops.get(0);
                 else if (i == 7 && j == 5)
-                    P = wb02;
+                    P = whiteBishops.get(1);
                 else if (i == 0 && j == 3)
-                    P = bk;
+                    P = blackKing;
                 else if (i == 0 && j == 4)
-                    P = bq;
+                    P = blackQueens.get(0);
                 else if (i == 7 && j == 3)
-                    P = wk;
+                    P = whiteKing;
                 else if (i == 7 && j == 4)
-                    P = wq;
+                    P = whiteQueens.get(0);
                 else if (i == 1)
-                    P = bp[j];
+                    P = blackPawns.get(j);
                 else if (i == 6)
-                    P = wp[j];
+                    P = whitePawns.get(j);
                 cell = new Cell(i, j, P);
                 cell.addMouseListener(this);
                 board.add(cell);
@@ -323,9 +326,9 @@ public class Main extends JFrame implements MouseListener {
     // A function to retrieve the Black King or White King
     private King getKing(int color) {
         if (color == 0)
-            return wk;
+            return whiteKing;
         else
-            return bk;
+            return blackKing;
     }
 
     // A function to clean the highlights of possible destination cells
