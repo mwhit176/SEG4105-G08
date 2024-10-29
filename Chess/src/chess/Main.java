@@ -302,7 +302,7 @@ public class Main extends JFrame implements MouseListener {
     public void changechance() {
         if (boardState[getKing(chance).getx()][getKing(chance).gety()].ischeck()) {
             chance ^= 1;
-            gameend();
+            gameend(false);
         }
         if (destinationlist.isEmpty() == false)
             cleandestinations(destinationlist);
@@ -462,24 +462,33 @@ public class Main extends JFrame implements MouseListener {
         }
         return true;
     }
+    
+    private void triggerDraw() {
+        gameend(true);
+    }
 
     @SuppressWarnings("deprecation")
-    private void gameend() {
+    private void gameend(boolean isDraw) {
         cleandestinations(destinationlist);
         displayTime.disable();
         timer.countdownTimer.stop();
         if (previous != null)
             previous.removePiece();
-        if (chance == 0) {
-            White.updateGamesWon();
-            White.Update_Player();
-            winner = White.name();
+        if (!isDraw) {
+            if (chance == 0) {
+                White.updateGamesWon();
+                White.Update_Player();
+                winner = White.name();
+            } else {
+                Black.updateGamesWon();
+                Black.Update_Player();
+                winner = Black.name();
+            }
+            JOptionPane.showMessageDialog(board, "Checkmate!!!\n" + winner + " wins");
         } else {
-            Black.updateGamesWon();
-            Black.Update_Player();
-            winner = Black.name();
+            JOptionPane.showMessageDialog(board, "Draw.\nNobody wins.");
         }
-        JOptionPane.showMessageDialog(board, "Checkmate!!!\n" + winner + " wins");
+        
         WhitePlayer.remove(wdetails);
         BlackPlayer.remove(bdetails);
         displayTime.remove(label);
@@ -549,7 +558,7 @@ public class Main extends JFrame implements MouseListener {
                             previous.deselect();
                             if (previous.getpiece() != null)
                                 previous.removePiece();
-                            gameend();
+                            gameend(false);
                         }
                     }
                     if (getKing(chance).isindanger(boardState) == false)
