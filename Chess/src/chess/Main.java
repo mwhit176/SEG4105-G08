@@ -552,7 +552,9 @@ public class Main extends JFrame implements MouseListener {
                 	if ((previous.getpiece().getId().equals("WK") || previous.getpiece().getId().equals("BK")) && (c.y - previous.y == 2)) {
                 		c.setPiece(previous.getpiece());
                 		boardState[c.x][c.y-1].setPiece(boardState[c.x][7].getpiece());
-                		previous.removePiece();
+                		if (boardState[c.x][7].ischeck()) {
+                			boardState[c.x][7].removecheck();
+                		}
                 		boardState[c.x][7].removePiece();
                 		boardState[c.x][7].invalidate();
                 		boardState[c.x][7].validate();
@@ -560,7 +562,9 @@ public class Main extends JFrame implements MouseListener {
                 	} else if ((previous.getpiece().getId().equals("WK") || previous.getpiece().getId().equals("BK")) && (c.y - previous.y == -2)) {
                 		c.setPiece(previous.getpiece());
                 		boardState[c.x][c.y+1].setPiece(boardState[c.x][0].getpiece());
-                		previous.removePiece();
+                		if (boardState[c.x][0].ischeck()) {
+                			boardState[c.x][0].removecheck();
+                		}
                 		boardState[c.x][0].removePiece();
                 		boardState[c.x][0].invalidate();
                 		boardState[c.x][0].validate();
@@ -569,10 +573,10 @@ public class Main extends JFrame implements MouseListener {
 	                    if (c.getpiece() != null)
 	                        c.removePiece();
 	                    c.setPiece(previous.getpiece());
-	                    if (previous.ischeck())
-	                        previous.removecheck();
-	                    previous.removePiece();
                 	}
+                    if (previous.ischeck())
+                        previous.removecheck();
+                    previous.removePiece();
                     if (getKing(chance ^ 1).isindanger(boardState)) {
                         boardState[getKing(chance ^ 1).getx()][getKing(chance ^ 1).gety()].setcheck();
                         if (checkmate(getKing(chance ^ 1).getcolor())) {
