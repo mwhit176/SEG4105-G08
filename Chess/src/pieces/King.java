@@ -37,7 +37,7 @@ public class King extends Piece {
     public ArrayList<Cell> move(Cell state[][], int x, int y) {
         // King can move only one step. So all the adjacent 8 cells have been
         // considered.
-    	boolean noPiece;
+    	boolean castle;
         possiblemoves.clear();
         int posx[] = { x, x, x + 1, x + 1, x + 1, x - 1, x - 1, x - 1 };
         int posy[] = { y - 1, y + 1, y - 1, y, y + 1, y - 1, y, y + 1 };
@@ -46,32 +46,38 @@ public class King extends Piece {
                 if ((state[posx[i]][posy[i]].getpiece() == null
                         || state[posx[i]][posy[i]].getpiece().getcolor() != this.getcolor()))
                     possiblemoves.add(state[posx[i]][posy[i]]);
-        if (this.getcolor() == 0 && this.getMoveCount() == 0 && !isindanger(state)) {
+        if (this.getMoveCount() == 0 && !isindanger(state)) {
         	Piece rightPiece = state[x][y+4].getpiece();
         	Piece leftPiece = state[x][y-3].getpiece();
-        	if (rightPiece.getId().contains("WR")) {
-        		noPiece = true;
+        	if ((rightPiece.getId().contains("WR") && this.getcolor() == 0) || (rightPiece.getId().contains("BR") && this.getcolor() == 1)) {
+        		castle = true;
         		if (rightPiece.getMoveCount() == 0) {
         			for (int i = y+1; i < y+4; i++) {
-        				if (noPiece && state[x][i].getpiece() != null) {
-        					noPiece = false;
+        				if (castle && state[x][i].getpiece() != null) {
+        					castle = false;
+        				}
+        				if (i <= y+2 && isindangergeneralized(state, x, i)) {
+        					castle = false;
         				}
         			}
-        			if (noPiece) {
+        			if (castle) {
         				possiblemoves.add(state[x][y+2]);
         			}
         			
         		}
         	}
-        	if (leftPiece.getId().contains("WR")) {
-        		noPiece = true;
+        	if ((leftPiece.getId().contains("WR") && this.getcolor() == 0) || (leftPiece.getId().contains("BR") && this.getcolor() == 1)) {
+        		castle = true;
         		if (leftPiece.getMoveCount() == 0) {
         			for (int i = y-1; i > y-3; i--) {
-        				if (noPiece && state[x][i].getpiece() != null) {
-        					noPiece = false;
+        				if (castle && state[x][i].getpiece() != null) {
+        					castle = false;
+        				}
+        				if (i >= y-2 && isindangergeneralized(state, x, i)) {
+        					castle = false;
         				}
         			}
-        			if (noPiece) {
+        			if (castle) {
         				possiblemoves.add(state[x][y-2]);
         			}
         		}
@@ -241,4 +247,161 @@ public class King extends Piece {
         return false;
     }
     
+    public boolean isindangergeneralized(Cell state[][], int x, int y) {
+
+        // Checking for attack from left,right,up and down
+        for (int i = x + 1; i < 8; i++) {
+            if (state[i][y].getpiece() == null)
+                continue;
+            else if (state[i][y].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if ((state[i][y].getpiece() instanceof Rook) || (state[i][y].getpiece() instanceof Queen))
+                    return true;
+                else
+                    break;
+            }
+        }
+        for (int i = x - 1; i >= 0; i--) {
+            if (state[i][y].getpiece() == null)
+                continue;
+            else if (state[i][y].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if ((state[i][y].getpiece() instanceof Rook) || (state[i][y].getpiece() instanceof Queen))
+                    return true;
+                else
+                    break;
+            }
+        }
+        for (int i = y + 1; i < 8; i++) {
+            if (state[x][i].getpiece() == null)
+                continue;
+            else if (state[x][i].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if ((state[x][i].getpiece() instanceof Rook) || (state[x][i].getpiece() instanceof Queen))
+                    return true;
+                else
+                    break;
+            }
+        }
+        for (int i = y - 1; i >= 0; i--) {
+            if (state[x][i].getpiece() == null)
+                continue;
+            else if (state[x][i].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if ((state[x][i].getpiece() instanceof Rook) || (state[x][i].getpiece() instanceof Queen))
+                    return true;
+                else
+                    break;
+            }
+        }
+
+        // checking for attack from diagonal direction
+        int tempx = x + 1, tempy = y - 1;
+        while (tempx < 8 && tempy >= 0) {
+            if (state[tempx][tempy].getpiece() == null) {
+                tempx++;
+                tempy--;
+            } else if (state[tempx][tempy].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if (state[tempx][tempy].getpiece() instanceof Bishop || state[tempx][tempy].getpiece() instanceof Queen)
+                    return true;
+                else
+                    break;
+            }
+        }
+        tempx = x - 1;
+        tempy = y + 1;
+        while (tempx >= 0 && tempy < 8) {
+            if (state[tempx][tempy].getpiece() == null) {
+                tempx--;
+                tempy++;
+            } else if (state[tempx][tempy].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if (state[tempx][tempy].getpiece() instanceof Bishop || state[tempx][tempy].getpiece() instanceof Queen)
+                    return true;
+                else
+                    break;
+            }
+        }
+        tempx = x - 1;
+        tempy = y - 1;
+        while (tempx >= 0 && tempy >= 0) {
+            if (state[tempx][tempy].getpiece() == null) {
+                tempx--;
+                tempy--;
+            } else if (state[tempx][tempy].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if (state[tempx][tempy].getpiece() instanceof Bishop || state[tempx][tempy].getpiece() instanceof Queen)
+                    return true;
+                else
+                    break;
+            }
+        }
+        tempx = x + 1;
+        tempy = y + 1;
+        while (tempx < 8 && tempy < 8) {
+            if (state[tempx][tempy].getpiece() == null) {
+                tempx++;
+                tempy++;
+            } else if (state[tempx][tempy].getpiece().getcolor() == this.getcolor())
+                break;
+            else {
+                if (state[tempx][tempy].getpiece() instanceof Bishop || state[tempx][tempy].getpiece() instanceof Queen)
+                    return true;
+                else
+                    break;
+            }
+        }
+
+        // Checking for attack from the Knight of opposite color
+        int posx[] = { x + 1, x + 1, x + 2, x + 2, x - 1, x - 1, x - 2, x - 2 };
+        int posy[] = { y - 2, y + 2, y - 1, y + 1, y - 2, y + 2, y - 1, y + 1 };
+        for (int i = 0; i < 8; i++)
+            if ((posx[i] >= 0 && posx[i] < 8 && posy[i] >= 0 && posy[i] < 8))
+                if (state[posx[i]][posy[i]].getpiece() != null
+                        && state[posx[i]][posy[i]].getpiece().getcolor() != this.getcolor()
+                        && (state[posx[i]][posy[i]].getpiece() instanceof Knight)) {
+                    return true;
+                }
+
+        // Checking for attack from the Pawn of opposite color
+        int pox[] = { x + 1, x + 1, x + 1, x, x, x - 1, x - 1, x - 1 };
+        int poy[] = { y - 1, y + 1, y, y + 1, y - 1, y + 1, y - 1, y };
+        {
+            for (int i = 0; i < 8; i++)
+                if ((pox[i] >= 0 && pox[i] < 8 && poy[i] >= 0 && poy[i] < 8))
+                    if (state[pox[i]][poy[i]].getpiece() != null
+                            && state[pox[i]][poy[i]].getpiece().getcolor() != this.getcolor()
+                            && (state[pox[i]][poy[i]].getpiece() instanceof King)) {
+                        return true;
+                    }
+        }
+        if (getcolor() == 0) {
+            if (x > 0 && y > 0 && state[x - 1][y - 1].getpiece() != null
+                    && state[x - 1][y - 1].getpiece().getcolor() == 1
+                    && (state[x - 1][y - 1].getpiece() instanceof Pawn))
+                return true;
+            if (x > 0 && y < 7 && state[x - 1][y + 1].getpiece() != null
+                    && state[x - 1][y + 1].getpiece().getcolor() == 1
+                    && (state[x - 1][y + 1].getpiece() instanceof Pawn))
+                return true;
+        } else {
+            if (x < 7 && y > 0 && state[x + 1][y - 1].getpiece() != null
+                    && state[x + 1][y - 1].getpiece().getcolor() == 0
+                    && (state[x + 1][y - 1].getpiece() instanceof Pawn))
+                return true;
+            if (x < 7 && y < 7 && state[x + 1][y + 1].getpiece() != null
+                    && state[x + 1][y + 1].getpiece().getcolor() == 0
+                    && (state[x + 1][y + 1].getpiece() instanceof Pawn))
+                return true;
+        }
+        return false;
+    }
 }

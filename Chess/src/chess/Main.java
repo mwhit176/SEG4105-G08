@@ -557,11 +557,14 @@ public class Main extends JFrame implements MouseListener {
                 		boardState[c.x][7].invalidate();
                 		boardState[c.x][7].validate();
                 		boardState[c.x][7].repaint();
-	                    changechance();
-	                    if (!end) {
-	                        timer.reset();
-	                        timer.start();
-	                    }
+                	} else if ((previous.getpiece().getId().equals("WK") || previous.getpiece().getId().equals("BK")) && (c.y - previous.y == -2)) {
+                		c.setPiece(previous.getpiece());
+                		boardState[c.x][c.y+1].setPiece(boardState[c.x][0].getpiece());
+                		previous.removePiece();
+                		boardState[c.x][0].removePiece();
+                		boardState[c.x][0].invalidate();
+                		boardState[c.x][0].validate();
+                		boardState[c.x][0].repaint();
                 	} else {
 	                    if (c.getpiece() != null)
 	                        c.removePiece();
@@ -569,27 +572,27 @@ public class Main extends JFrame implements MouseListener {
 	                    if (previous.ischeck())
 	                        previous.removecheck();
 	                    previous.removePiece();
-	                    if (getKing(chance ^ 1).isindanger(boardState)) {
-	                        boardState[getKing(chance ^ 1).getx()][getKing(chance ^ 1).gety()].setcheck();
-	                        if (checkmate(getKing(chance ^ 1).getcolor())) {
-	                            previous.deselect();
-	                            if (previous.getpiece() != null)
-	                                previous.removePiece();
-	                            gameend(false);
-	                        }
-	                    }
-	                    if (getKing(chance).isindanger(boardState) == false)
-	                        boardState[getKing(chance).getx()][getKing(chance).gety()].removecheck();
-	                    if (c.getpiece() instanceof King) {
-	                        ((King) c.getpiece()).setx(c.x);
-	                        ((King) c.getpiece()).sety(c.y);
-	                    }
-	                    changechance();
-	                    if (!end) {
-	                        timer.reset();
-	                        timer.start();
-	                    }
                 	}
+                    if (getKing(chance ^ 1).isindanger(boardState)) {
+                        boardState[getKing(chance ^ 1).getx()][getKing(chance ^ 1).gety()].setcheck();
+                        if (checkmate(getKing(chance ^ 1).getcolor())) {
+                            previous.deselect();
+                            if (previous.getpiece() != null)
+                                previous.removePiece();
+                            gameend(false);
+                        }
+                    }
+                    if (getKing(chance).isindanger(boardState) == false)
+                        boardState[getKing(chance).getx()][getKing(chance).gety()].removecheck();
+                    if (c.getpiece() instanceof King) {
+                        ((King) c.getpiece()).setx(c.x);
+                        ((King) c.getpiece()).sety(c.y);
+                    }
+                    changechance();
+                    if (!end) {
+                        timer.reset();
+                        timer.start();
+                    }
                 }
                 if (previous != null) {
                     previous.deselect();
@@ -676,6 +679,12 @@ public class Main extends JFrame implements MouseListener {
             displayTime.add(label);
             timer = new Time(label);
             timer.start();
+            whiteKing.setMoveCount(0);
+            blackKing.setMoveCount(0);
+            blackRooks.get(0).setMoveCount(0);
+            blackRooks.get(1).setMoveCount(0);
+            whiteRooks.get(0).setMoveCount(0);
+            whiteRooks.get(1).setMoveCount(0);
         }
     }
 

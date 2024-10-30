@@ -62,6 +62,10 @@ public abstract class Piece implements Cloneable {
 		moveCount++;
 	}
 	
+	public void setMoveCount(int move_count) {
+		moveCount = move_count;
+	}
+	
 	public int getMoveCount() {
 		return moveCount;
 	}
