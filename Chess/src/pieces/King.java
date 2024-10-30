@@ -7,7 +7,6 @@ import chess.Cell;
 public class King extends Piece {
 
     private int x, y; // Extra variables for King class to keep a track of king's position
-
     // King Constructor
     public King(String i, String p, int c, int x, int y) {
         setx(x);
@@ -38,6 +37,7 @@ public class King extends Piece {
     public ArrayList<Cell> move(Cell state[][], int x, int y) {
         // King can move only one step. So all the adjacent 8 cells have been
         // considered.
+    	boolean noPiece;
         possiblemoves.clear();
         int posx[] = { x, x, x + 1, x + 1, x + 1, x - 1, x - 1, x - 1 };
         int posy[] = { y - 1, y + 1, y - 1, y, y + 1, y - 1, y, y + 1 };
@@ -46,6 +46,37 @@ public class King extends Piece {
                 if ((state[posx[i]][posy[i]].getpiece() == null
                         || state[posx[i]][posy[i]].getpiece().getcolor() != this.getcolor()))
                     possiblemoves.add(state[posx[i]][posy[i]]);
+        if (this.getcolor() == 0 && this.getMoveCount() == 0 && !isindanger(state)) {
+        	Piece rightPiece = state[x][y+4].getpiece();
+        	Piece leftPiece = state[x][y-3].getpiece();
+        	if (rightPiece.getId().contains("WR")) {
+        		noPiece = true;
+        		if (rightPiece.getMoveCount() == 0) {
+        			for (int i = y+1; i < y+4; i++) {
+        				if (noPiece && state[x][i].getpiece() != null) {
+        					noPiece = false;
+        				}
+        			}
+        			if (noPiece) {
+        				possiblemoves.add(state[x][y+2]);
+        			}
+        			
+        		}
+        	}
+        	if (leftPiece.getId().contains("WR")) {
+        		noPiece = true;
+        		if (leftPiece.getMoveCount() == 0) {
+        			for (int i = y-1; i > y-3; i--) {
+        				if (noPiece && state[x][i].getpiece() != null) {
+        					noPiece = false;
+        				}
+        			}
+        			if (noPiece) {
+        				possiblemoves.add(state[x][y-2]);
+        			}
+        		}
+        	}
+        }
         return possiblemoves;
     }
 
@@ -209,4 +240,5 @@ public class King extends Piece {
         }
         return false;
     }
+    
 }
