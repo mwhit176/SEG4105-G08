@@ -74,7 +74,7 @@ public class Main extends JFrame implements MouseListener {
     private BufferedImage image;
     private Button start, wselect, bselect, WNewPlayer, BNewPlayer;
     public static int timeRemaining = 60;
-    private HashMap<Cell[][], Integer> stateHash;
+    private static HashMap<BoardState, Integer> stateHash;
 
     public static void main(String[] args) {
 
@@ -106,6 +106,7 @@ public class Main extends JFrame implements MouseListener {
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
+        stateHash = new HashMap<BoardState, Integer>();
     }
 
     // Constructor
@@ -603,6 +604,15 @@ public class Main extends JFrame implements MouseListener {
                         timer.reset();
                         timer.start();
                     }
+                    BoardState boardStateClass = new BoardState(boardState);
+                    if (stateHash.get(boardStateClass) == null) {
+                    	stateHash.put(boardStateClass, 1);
+                    } else {
+                    	stateHash.replace(boardStateClass, stateHash.get(boardStateClass) + 1);
+                    }
+                    if (stateHash.get(boardStateClass).intValue() == 3) {
+                    	gameend(true);
+                    }
                 }
                 if (previous != null) {
                     previous.deselect();
@@ -632,6 +642,7 @@ public class Main extends JFrame implements MouseListener {
             ((King) c.getpiece()).setx(c.x);
             ((King) c.getpiece()).sety(c.y);
         }
+        
     }
 
     // Other Irrelevant abstract function. Only the Click Event is captured.

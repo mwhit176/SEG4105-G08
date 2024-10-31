@@ -69,4 +69,8 @@ public abstract class Piece implements Cloneable {
 	public int getMoveCount() {
 		return moveCount;
 	}
+	
+	public String getPieceType() {
+		return id.substring(0, 2);
+	}
 }

@@ -7,6 +7,7 @@ import chess.Cell;
 public class King extends Piece {
 
     private int x, y; // Extra variables for King class to keep a track of king's position
+    boolean castle;
     // King Constructor
     public King(String i, String p, int c, int x, int y) {
         setx(x);
@@ -32,12 +33,19 @@ public class King extends Piece {
     public int gety() {
         return y;
     }
+    
+    public boolean getCastle() {
+    	return castle;
+    }
+    
+    public void setCastle(boolean castle) {
+    	this.castle = castle;
+    }
 
     // Move Function for King Overridden from Pieces
     public ArrayList<Cell> move(Cell state[][], int x, int y) {
         // King can move only one step. So all the adjacent 8 cells have been
         // considered.
-    	boolean castle;
         possiblemoves.clear();
         int posx[] = { x, x, x + 1, x + 1, x + 1, x - 1, x - 1, x - 1 };
         int posy[] = { y - 1, y + 1, y - 1, y, y + 1, y - 1, y, y + 1 };
