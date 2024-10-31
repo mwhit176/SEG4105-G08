@@ -463,6 +463,73 @@ public class Main extends JFrame implements MouseListener {
         return true;
     }
     
+    private boolean isDrawByInsufficientMaterial() {
+        // Check for King vs King
+        if (whiteRooks.isEmpty() && blackRooks.isEmpty() &&
+            whiteKnights.isEmpty() && blackKnights.isEmpty() &&
+            whiteBishops.isEmpty() && blackBishops.isEmpty() &&
+            whiteQueens.isEmpty() && blackQueens.isEmpty() &&
+            whitePawns.isEmpty() && blackPawns.isEmpty()) {
+            return true;
+        }
+        
+        // Check for King and Bishop vs King
+        if (whitePawns.isEmpty() && blackPawns.isEmpty() &&
+            whiteRooks.isEmpty() && blackRooks.isEmpty() &&
+            whiteKnights.isEmpty() && blackKnights.isEmpty() &&
+            whiteQueens.isEmpty() && blackQueens.isEmpty()) {
+            
+            if ((whiteBishops.size() == 1 && blackBishops.isEmpty()) ||
+                (blackBishops.size() == 1 && whiteBishops.isEmpty())) {
+                return true;
+            }
+        }
+
+        // Check for King and Knight vs King
+        if (whitePawns.isEmpty() && blackPawns.isEmpty() &&
+            whiteRooks.isEmpty() && blackRooks.isEmpty() &&
+            whiteBishops.isEmpty() && blackBishops.isEmpty() &&
+            whiteQueens.isEmpty() && blackQueens.isEmpty()) {
+
+            if ((whiteKnights.size() == 1 && blackKnights.isEmpty()) ||
+                (blackKnights.size() == 1 && whiteKnights.isEmpty())) {
+                return true;
+            }
+        }
+
+        // Check for King and Bishop vs King and Bishop of the same color
+        if (whitePawns.isEmpty() && blackPawns.isEmpty() &&
+            whiteRooks.isEmpty() && blackRooks.isEmpty() &&
+            whiteKnights.isEmpty() && blackKnights.isEmpty() &&
+            whiteQueens.isEmpty() && blackQueens.isEmpty()) {
+
+            if (whiteBishops.size() == 1 && blackBishops.size() == 1) {
+                // Check if both bishops are on the same color
+                Cell whiteBishopCell = findBishopCell(whiteBishops.get(0));
+                Cell blackBishopCell = findBishopCell(blackBishops.get(0));
+
+                if ((whiteBishopCell.x + whiteBishopCell.y) % 2 == (blackBishopCell.x + blackBishopCell.y) % 2) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // Helper function to find the cell of a bishop
+    private Cell findBishopCell(Bishop bishop) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (boardState[i][j].getpiece() == bishop) {
+                    return boardState[i][j];
+                }
+            }
+        }
+        return null;
+    }
+
+    
     private void triggerDraw() {
         gameend(true);
     }
@@ -566,6 +633,11 @@ public class Main extends JFrame implements MouseListener {
                     if (c.getpiece() instanceof King) {
                         ((King) c.getpiece()).setx(c.x);
                         ((King) c.getpiece()).sety(c.y);
+                    }
+                    // Check for insufficient material draw after a successful move
+                    if (isDrawByInsufficientMaterial()) {
+                        triggerDraw();
+                        return; // End the method, the game is over
                     }
                     changechance();
                     if (!end) {
