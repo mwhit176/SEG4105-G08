@@ -49,6 +49,8 @@ public class King extends Piece {
         if (this.getMoveCount() == 0 && !isindanger(state)) {
         	Piece rightPiece = state[x][y+4].getpiece();
         	Piece leftPiece = state[x][y-3].getpiece();
+        	
+        	// Does checks for queen side castle
         	if (rightPiece instanceof Rook && rightPiece.getcolor() == this.getcolor()) {
         		castle = true;
         		if (rightPiece.getMoveCount() == 0) {
@@ -66,6 +68,8 @@ public class King extends Piece {
         			
         		}
         	}
+        	
+        	// Does checks for king side castle 
         	if (leftPiece instanceof Rook && leftPiece.getcolor() == this.getcolor()) {
         		castle = true;
         		if (leftPiece.getMoveCount() == 0) {
