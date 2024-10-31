@@ -546,10 +546,10 @@ public class Main extends JFrame implements MouseListener {
                 previous = null;
             } else if (c.getpiece() == null || previous.getpiece().getcolor() != c.getpiece().getcolor()) {
                 if (c.ispossibledestination()) {
-                	if (previous.getpiece().getId().contains("R") || previous.getpiece().getId().equals("BK") || previous.getpiece().getId().equals("WK")) {
+                	if (previous.getpiece() instanceof Rook || previous.getpiece() instanceof King) {
                     	previous.getpiece().incrementMoveCount();
                     }
-                	if ((previous.getpiece().getId().equals("WK") || previous.getpiece().getId().equals("BK")) && (c.y - previous.y == 2)) {
+                	if ((previous.getpiece() instanceof King) && (c.y - previous.y == 2)) {
                 		c.setPiece(previous.getpiece());
                 		boardState[c.x][c.y-1].setPiece(boardState[c.x][7].getpiece());
                 		if (boardState[c.x][7].ischeck()) {
@@ -559,7 +559,7 @@ public class Main extends JFrame implements MouseListener {
                 		boardState[c.x][7].invalidate();
                 		boardState[c.x][7].validate();
                 		boardState[c.x][7].repaint();
-                	} else if ((previous.getpiece().getId().equals("WK") || previous.getpiece().getId().equals("BK")) && (c.y - previous.y == -2)) {
+                	} else if ((previous.getpiece() instanceof King) && (c.y - previous.y == -2)) {
                 		c.setPiece(previous.getpiece());
                 		boardState[c.x][c.y+1].setPiece(boardState[c.x][0].getpiece());
                 		if (boardState[c.x][0].ischeck()) {
