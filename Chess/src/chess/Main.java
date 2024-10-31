@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.HashMap;
 
 /**
  * @author Ashish Kedia and Adarsh Mohata
@@ -73,6 +74,7 @@ public class Main extends JFrame implements MouseListener {
     private BufferedImage image;
     private Button start, wselect, bselect, WNewPlayer, BNewPlayer;
     public static int timeRemaining = 60;
+    private HashMap<Cell[][], Integer> stateHash;
 
     public static void main(String[] args) {
 
