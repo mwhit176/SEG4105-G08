@@ -545,10 +545,39 @@ public class Main extends JFrame implements MouseListener {
                 destinationlist.clear();
                 previous = null;
             } else if (c.getpiece() == null || previous.getpiece().getcolor() != c.getpiece().getcolor()) {
-                if (c.ispossibledestination()) {
-                    if (c.getpiece() != null)
-                        c.removePiece();
-                    c.setPiece(previous.getpiece());
+                // This increments move count for rook and king when moved
+            	if (c.ispossibledestination()) {
+                	if (previous.getpiece() instanceof Rook || previous.getpiece() instanceof King) {
+                    	previous.getpiece().incrementMoveCount();
+                    }
+                	// This does queen side castle below
+                	if ((previous.getpiece() instanceof King) && (c.y - previous.y == 2)) {
+                		c.setPiece(previous.getpiece());
+                		boardState[c.x][c.y-1].setPiece(boardState[c.x][7].getpiece());
+                		if (boardState[c.x][7].ischeck()) {
+                			boardState[c.x][7].removecheck();
+                		}
+                		boardState[c.x][7].removePiece();
+                		boardState[c.x][7].invalidate();
+                		boardState[c.x][7].validate();
+                		boardState[c.x][7].repaint();
+                	// This does king side castle below
+                	} else if ((previous.getpiece() instanceof King) && (c.y - previous.y == -2)) {
+                		c.setPiece(previous.getpiece());
+                		boardState[c.x][c.y+1].setPiece(boardState[c.x][0].getpiece());
+                		if (boardState[c.x][0].ischeck()) {
+                			boardState[c.x][0].removecheck();
+                		}
+                		boardState[c.x][0].removePiece();
+                		boardState[c.x][0].invalidate();
+                		boardState[c.x][0].validate();
+                		boardState[c.x][0].repaint();
+                	// This is the original code for the move function
+                	} else {
+	                    if (c.getpiece() != null)
+	                        c.removePiece();
+	                    c.setPiece(previous.getpiece());
+                	}
                     if (previous.ischeck())
                         previous.removecheck();
                     previous.removePiece();
@@ -658,6 +687,12 @@ public class Main extends JFrame implements MouseListener {
             displayTime.add(label);
             timer = new Time(label);
             timer.start();
+            whiteKing.setMoveCount(0);
+            blackKing.setMoveCount(0);
+            blackRooks.get(0).setMoveCount(0);
+            blackRooks.get(1).setMoveCount(0);
+            whiteRooks.get(0).setMoveCount(0);
+            whiteRooks.get(1).setMoveCount(0);
         }
     }
 

@@ -7,7 +7,6 @@ import chess.Cell;
 public class King extends Piece {
 
     private int x, y; // Extra variables for King class to keep a track of king's position
-
     // King Constructor
     public King(String i, String p, int c, int x, int y) {
         setx(x);
@@ -38,6 +37,7 @@ public class King extends Piece {
     public ArrayList<Cell> move(Cell state[][], int x, int y) {
         // King can move only one step. So all the adjacent 8 cells have been
         // considered.
+    	boolean castle;
         possiblemoves.clear();
         int posx[] = { x, x, x + 1, x + 1, x + 1, x - 1, x - 1, x - 1 };
         int posy[] = { y - 1, y + 1, y - 1, y, y + 1, y - 1, y, y + 1 };
@@ -46,6 +46,47 @@ public class King extends Piece {
                 if ((state[posx[i]][posy[i]].getpiece() == null
                         || state[posx[i]][posy[i]].getpiece().getcolor() != this.getcolor()))
                     possiblemoves.add(state[posx[i]][posy[i]]);
+        if (this.getMoveCount() == 0 && !isindanger(state)) {
+        	Piece rightPiece = state[x][y+4].getpiece();
+        	Piece leftPiece = state[x][y-3].getpiece();
+        	
+        	// Does checks for queen side castle
+        	if (rightPiece instanceof Rook && rightPiece.getcolor() == this.getcolor()) {
+        		castle = true;
+        		if (rightPiece.getMoveCount() == 0) {
+        			for (int i = y+1; i < y+4; i++) {
+        				if (castle && state[x][i].getpiece() != null) {
+        					castle = false;
+        				}
+        				if (i <= y+2 && isindanger(state, x, i)) {
+        					castle = false;
+        				}
+        			}
+        			if (castle) {
+        				possiblemoves.add(state[x][y+2]);
+        			}
+        			
+        		}
+        	}
+        	
+        	// Does checks for king side castle 
+        	if (leftPiece instanceof Rook && leftPiece.getcolor() == this.getcolor()) {
+        		castle = true;
+        		if (leftPiece.getMoveCount() == 0) {
+        			for (int i = y-1; i > y-3; i--) {
+        				if (castle && state[x][i].getpiece() != null) {
+        					castle = false;
+        				}
+        				if (i >= y-2 && isindanger(state, x, i)) {
+        					castle = false;
+        				}
+        			}
+        			if (castle) {
+        				possiblemoves.add(state[x][y-2]);
+        			}
+        		}
+        	}
+        }
         return possiblemoves;
     }
 
@@ -53,6 +94,11 @@ public class King extends Piece {
     // It checks whether there is any piece of opposite color that can attack king
     // for a given board state
     public boolean isindanger(Cell state[][]) {
+
+       return isindanger(state, x, y);
+    }
+    
+    public boolean isindanger(Cell state[][], int x, int y) {
 
         // Checking for attack from left,right,up and down
         for (int i = x + 1; i < 8; i++) {
