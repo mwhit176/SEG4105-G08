@@ -545,10 +545,12 @@ public class Main extends JFrame implements MouseListener {
                 destinationlist.clear();
                 previous = null;
             } else if (c.getpiece() == null || previous.getpiece().getcolor() != c.getpiece().getcolor()) {
-                if (c.ispossibledestination()) {
+                // This increments move count for rook and king when moved
+            	if (c.ispossibledestination()) {
                 	if (previous.getpiece() instanceof Rook || previous.getpiece() instanceof King) {
                     	previous.getpiece().incrementMoveCount();
                     }
+                	// This does queen side castle below
                 	if ((previous.getpiece() instanceof King) && (c.y - previous.y == 2)) {
                 		c.setPiece(previous.getpiece());
                 		boardState[c.x][c.y-1].setPiece(boardState[c.x][7].getpiece());
@@ -559,6 +561,7 @@ public class Main extends JFrame implements MouseListener {
                 		boardState[c.x][7].invalidate();
                 		boardState[c.x][7].validate();
                 		boardState[c.x][7].repaint();
+                	// This does king side castle below
                 	} else if ((previous.getpiece() instanceof King) && (c.y - previous.y == -2)) {
                 		c.setPiece(previous.getpiece());
                 		boardState[c.x][c.y+1].setPiece(boardState[c.x][0].getpiece());
@@ -569,6 +572,7 @@ public class Main extends JFrame implements MouseListener {
                 		boardState[c.x][0].invalidate();
                 		boardState[c.x][0].validate();
                 		boardState[c.x][0].repaint();
+                	// This is the original code for the move function
                 	} else {
 	                    if (c.getpiece() != null)
 	                        c.removePiece();
