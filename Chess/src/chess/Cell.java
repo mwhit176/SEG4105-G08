@@ -1,6 +1,8 @@
 package chess;
 
 import java.awt.*;
+import java.util.Objects;
+
 import javax.swing.*;
 
 import pieces.*;
@@ -131,5 +133,19 @@ public class Cell extends JPanel implements Cloneable {
     public boolean ischeck() // Function to check if the current cell is in check
     {
         return ischeck;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cell)) return false;
+        Cell that = (Cell) o;
+        if (this.getpiece() == null) {
+        	if (that.getpiece() != null) {
+        		return false;
+        	}
+        	return true;
+        }
+        return this.x == that.x && this.y == that.y && (this.getpiece().getPieceType().equals(that.getpiece().getPieceType()));
     }
 }
