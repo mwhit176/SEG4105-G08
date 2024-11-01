@@ -134,18 +134,4 @@ public class Cell extends JPanel implements Cloneable {
     {
         return ischeck;
     }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Cell)) return false;
-        Cell that = (Cell) o;
-        if (this.getpiece() == null) {
-        	if (that.getpiece() != null) {
-        		return false;
-        	}
-        	return true;
-        }
-        return this.x == that.x && this.y == that.y && (this.getpiece().getPieceType().equals(that.getpiece().getPieceType()));
-    }
 }
