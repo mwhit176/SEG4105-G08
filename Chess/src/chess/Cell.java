@@ -164,9 +164,4 @@ public class Cell extends JPanel implements Cloneable {
         }
         return this.x == that.x && this.y == that.y && pieceTypeResult;
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y, piece == null ? null : piece.getPieceType());
-    }
 }

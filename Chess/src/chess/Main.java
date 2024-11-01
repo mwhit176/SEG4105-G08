@@ -325,12 +325,13 @@ public class Main extends JFrame implements MouseListener {
             showPlayer.add(CHNC);
         }
         BoardState boardStateClass = new BoardState(boardState);
-        if (stateHash.get(boardStateClass.buildString()) == null) {
-        	stateHash.put(boardStateClass.buildString(), 1);
+        String stateString = boardStateClass.buildString();
+        if (stateHash.get(stateString) == null) {
+        	stateHash.put(stateString, 1);
         } else {
-        	stateHash.replace(boardStateClass.buildString(), stateHash.get(boardStateClass.buildString()) + 1);
+        	stateHash.replace(stateString, stateHash.get(stateString) + 1);
         }
-        if (stateHash.get(boardStateClass.buildString()).intValue() == 3) {
+        if (stateHash.get(stateString).intValue() == 3) {
         	gameend(true);
         }
     }
