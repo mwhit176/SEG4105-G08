@@ -13,7 +13,9 @@ import chess.Cell;
 public class Bishop extends Piece {
 
     // Constructor
-    public Bishop(String i, String p, int c) {
+    public Bishop(String i, String p, int c, int x, int y) {
+        setx(x);
+        sety(y);
         setId(i);
         setPath(p);
         setColor(c);

@@ -11,7 +11,9 @@ import chess.Cell;
 public class Pawn extends Piece {
 
     // COnstructors
-    public Pawn(String i, String p, int c) {
+    public Pawn(String i, String p, int c, int x, int y) {
+        setx(x);
+        sety(y);
         setId(i);
         setPath(p);
         setColor(c);

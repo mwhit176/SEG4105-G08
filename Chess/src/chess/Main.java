@@ -77,27 +77,27 @@ public class Main extends JFrame implements MouseListener {
     public static void main(String[] args) {
 
         // variable initialization
-        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0), new Rook("WR02", "White_Rook.png", 0));
-        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1), new Rook("BR02", "Black_Rook.png", 1));
-        whiteKnights = Arrays.asList(new Knight("WK01", "White_Knight.png", 0),
-                new Knight("WK02", "White_Knight.png", 0));
-        blackKnights = Arrays.asList(new Knight("BK01", "Black_Knight.png", 1),
-                new Knight("BK02", "Black_Knight.png", 1));
-        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0),
-                new Bishop("WB02", "White_Bishop.png", 0));
-        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1),
-                new Bishop("BB02", "Black_Bishop.png", 1));
-        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0));
-        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1));
+        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0, 7, 0), new Rook("WR02", "White_Rook.png", 0, 7, 7));
+        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1, 0, 0), new Rook("BR02", "Black_Rook.png", 1, 0, 7));
+        whiteKnights = Arrays.asList(new Knight("WK01", "White_Knight.png", 0, 7, 1),
+                new Knight("WK02", "White_Knight.png", 0, 7, 6));
+        blackKnights = Arrays.asList(new Knight("BK01", "Black_Knight.png", 1, 0, 1),
+                new Knight("BK02", "Black_Knight.png", 1, 0, 6));
+        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0, 7, 2),
+                new Bishop("WB02", "White_Bishop.png", 0, 7, 5));
+        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1, 0, 2),
+                new Bishop("BB02", "Black_Bishop.png", 1, 0, 5));
+        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0, 7, 4));
+        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1, 0, 4));
         whiteKing = new King("WK", "White_King.png", 0, 7, 3);
         blackKing = new King("BK", "Black_King.png", 1, 0, 3);
         whitePawns = new ArrayList<Pawn>();
         for (int i = 0; i < 8; i++) {
-            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0));
+            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0, 6, i));
         }
         blackPawns = new ArrayList<Pawn>();
         for (int i = 0; i < 8; i++) {
-            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1));
+            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1, 1, i));
         }
 
         // Setting up the board
@@ -329,6 +329,38 @@ public class Main extends JFrame implements MouseListener {
             return whiteKing;
         else
             return blackKing;
+    }
+    
+    private boolean isStalemate(int color, Cell[][] position) {
+    	boolean isStaleMate = true;
+    	List<Piece> pieces = getPieces(color, position);
+    	
+    	int i = 0;
+    	while (isStaleMate && i < pieces.size()) {
+    		Piece piece = pieces.get(i);
+    		ArrayList<Cell> moves = piece.move(position);
+    		
+    		if (piece instanceof King) moves = filterdestination(moves, position[piece.getx()][piece.gety()]);
+    		
+    		isStaleMate = moves.size() == 0;
+    		i++;
+    	}
+    	
+    	return isStaleMate;
+    }
+    
+    private List<Piece> getPieces(int color, Cell[][] position){
+    	List<Piece> pieces = new ArrayList<Piece>();
+    	
+    	for (int i = 0; i < 8; i++) {
+    		for (int j = 0; j < 8; j++) {
+    			Piece piece = position[i][j].getpiece();
+    			
+    			if (piece != null && color == piece.getcolor()) pieces.add(piece);
+    		}
+    	}
+    	
+    	return pieces;
     }
 
     // A function to clean the highlights of possible destination cells
@@ -563,11 +595,16 @@ public class Main extends JFrame implements MouseListener {
                     }
                     if (getKing(chance).isindanger(boardState) == false)
                         boardState[getKing(chance).getx()][getKing(chance).gety()].removecheck();
-                    if (c.getpiece() instanceof King) {
-                        ((King) c.getpiece()).setx(c.x);
-                        ((King) c.getpiece()).sety(c.y);
-                    }
+                    c.getpiece().setx(c.x);
+                    c.getpiece().sety(c.y);
                     changechance();
+                    
+                    //Check for stalemate
+                    if (isStalemate(chance, boardState)) {
+                    	System.out.println("Stalemate!!");
+                    	triggerDraw();
+                    }
+                    
                     if (!end) {
                         timer.reset();
                         timer.start();

@@ -11,7 +11,9 @@ import chess.Cell;
 public class Queen extends Piece {
 
     // Constructors
-    public Queen(String i, String p, int c) {
+    public Queen(String i, String p, int c, int x, int y) {
+        setx(x);
+        sety(y);
         setId(i);
         setPath(p);
         setColor(c);
