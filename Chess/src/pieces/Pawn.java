@@ -9,6 +9,8 @@ import chess.Cell;
  *
  */
 public class Pawn extends Piece {
+    
+    private boolean justSkipped = false;
 
     // COnstructors
     public Pawn(String i, String p, int c) {
@@ -41,6 +43,20 @@ public class Pawn extends Piece {
             if ((y < 7) && (state[x - 1][y + 1].getpiece() != null)
                     && (state[x - 1][y + 1].getpiece().getcolor() != this.getcolor()))
                 possiblemoves.add(state[x - 1][y + 1]);
+            // En Passant White Left
+            if ((x == 3) && (y > 0) && (state[x][y - 1].getpiece() != null)
+                    && (state[x][y - 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y - 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y - 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x - 1][y - 1]);
+            }
+            // En Passant White Right
+            if ((x == 3) && (y < 7) && (state[x][y + 1].getpiece() != null)
+                    && (state[x][y + 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y + 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y + 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x - 1][y + 1]);
+            }
         } else {
             if (x == 8)
                 return possiblemoves;
@@ -57,7 +73,29 @@ public class Pawn extends Piece {
             if ((y < 7) && (state[x + 1][y + 1].getpiece() != null)
                     && (state[x + 1][y + 1].getpiece().getcolor() != this.getcolor()))
                 possiblemoves.add(state[x + 1][y + 1]);
+            // En Passant Black Left
+            if ((x == 4) && (y > 0) && (state[x][y - 1].getpiece() != null)
+                    && (state[x][y - 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y - 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y - 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x + 1][y - 1]);
+            }
+            // En Passant Black Right
+            if ((x == 4) && (y < 7) && (state[x][y + 1].getpiece() != null)
+                    && (state[x][y + 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y + 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y + 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x + 1][y + 1]);
+            }
         }
         return possiblemoves;
+    }
+    
+    public boolean getJustSkipped() {
+        return this.justSkipped;
+    }
+    
+    public void setJustSkipped(boolean justSkipped) {
+        this.justSkipped = justSkipped;
     }
 }
