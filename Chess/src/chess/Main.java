@@ -74,17 +74,17 @@ public class Main extends JFrame implements MouseListener {
     private BufferedImage image;
     private Button start, wselect, bselect, WNewPlayer, BNewPlayer;
     public static int timeRemaining = 60;
-    private static HashMap<BoardState, Integer> stateHash;
+    private static HashMap<String, Integer> stateHash;
 
     public static void main(String[] args) {
 
         // variable initialization
         whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0), new Rook("WR02", "White_Rook.png", 0));
         blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1), new Rook("BR02", "Black_Rook.png", 1));
-        whiteKnights = Arrays.asList(new Knight("WK01", "White_Knight.png", 0),
-                new Knight("WK02", "White_Knight.png", 0));
-        blackKnights = Arrays.asList(new Knight("BK01", "Black_Knight.png", 1),
-                new Knight("BK02", "Black_Knight.png", 1));
+        whiteKnights = Arrays.asList(new Knight("WN01", "White_Knight.png", 0),
+                new Knight("WN02", "White_Knight.png", 0));
+        blackKnights = Arrays.asList(new Knight("BN01", "Black_Knight.png", 1),
+                new Knight("BN02", "Black_Knight.png", 1));
         whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0),
                 new Bishop("WB02", "White_Bishop.png", 0));
         blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1),
@@ -106,7 +106,7 @@ public class Main extends JFrame implements MouseListener {
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
-        stateHash = new HashMap<BoardState, Integer>();
+        stateHash = new HashMap<String, Integer>();
     }
 
     // Constructor
@@ -324,6 +324,15 @@ public class Main extends JFrame implements MouseListener {
             CHNC.setText(Main.move);
             showPlayer.add(CHNC);
         }
+        BoardState boardStateClass = new BoardState(boardState);
+        if (stateHash.get(boardStateClass.buildString()) == null) {
+        	stateHash.put(boardStateClass.buildString(), 1);
+        } else {
+        	stateHash.replace(boardStateClass.buildString(), stateHash.get(boardStateClass.buildString()) + 1);
+        }
+        if (stateHash.get(boardStateClass.buildString()).intValue() == 3) {
+        	gameend(true);
+        }
     }
 
     // A function to retrieve the Black King or White King
@@ -514,6 +523,7 @@ public class Main extends JFrame implements MouseListener {
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
+        stateHash.clear();
     }
 
     // These are the abstract function of the parent class. Only relevant method
@@ -603,15 +613,6 @@ public class Main extends JFrame implements MouseListener {
                     if (!end) {
                         timer.reset();
                         timer.start();
-                    }
-                    BoardState boardStateClass = new BoardState(boardState);
-                    if (stateHash.get(boardStateClass) == null) {
-                    	stateHash.put(boardStateClass, 1);
-                    } else {
-                    	stateHash.replace(boardStateClass, stateHash.get(boardStateClass) + 1);
-                    }
-                    if (stateHash.get(boardStateClass).intValue() == 3) {
-                    	gameend(true);
                     }
                 }
                 if (previous != null) {
@@ -706,6 +707,8 @@ public class Main extends JFrame implements MouseListener {
             blackRooks.get(1).setMoveCount(0);
             whiteRooks.get(0).setMoveCount(0);
             whiteRooks.get(1).setMoveCount(0);
+            BoardState startingState = new BoardState(boardState);
+            stateHash.put(startingState.buildString(), 1);
         }
     }
 

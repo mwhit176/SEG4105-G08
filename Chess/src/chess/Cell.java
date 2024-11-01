@@ -137,10 +137,32 @@ public class Cell extends JPanel implements Cloneable {
     
     @Override
     public boolean equals(Object o) {
+    	boolean sameCheck = false;
+    	boolean isNull = false;
+    	boolean pieceTypeResult = false;
         if (this == o) return true;
         if (!(o instanceof Cell)) return false;
         Cell that = (Cell) o;
-        return this.x == that.x && this.y == that.y && piece.getPieceType().equals(that.getpiece().getPieceType());
+        if (this.piece == null) {
+        	if (that.getpiece() == null) {
+        		sameCheck = true;
+        		isNull = true;
+        	} else {
+        		return false;
+        	}
+        } else {
+        	if (that.getpiece() != null) {
+        		sameCheck = true;
+        	} else {
+        		return false;
+        	}
+        }
+        if (sameCheck && !isNull) {
+        	pieceTypeResult = piece.getPieceType().equals(that.getpiece().getPieceType());
+        } else if (sameCheck && isNull) {
+        	pieceTypeResult = true;
+        }
+        return this.x == that.x && this.y == that.y && pieceTypeResult;
     }
 
     @Override
