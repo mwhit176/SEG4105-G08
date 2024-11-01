@@ -20,6 +20,8 @@ public abstract class Piece implements Cloneable {
     protected ArrayList<Cell> possiblemoves = new ArrayList<Cell>(); // Protected (access from child classes)
     private int x, y;
 
+    private int moveCount = 0;
+    
     public abstract ArrayList<Cell> move(Cell pos[][], int x, int y); // Abstract Function. Must be overridden
     
     public ArrayList<Cell> move(Cell pos[][]){
@@ -78,4 +80,20 @@ public abstract class Piece implements Cloneable {
     public Piece getcopy() throws CloneNotSupportedException {
         return (Piece) this.clone();
     }
+
+	public void incrementMoveCount() {
+		moveCount++;
+	}
+	
+	public void setMoveCount(int moveCount) {
+		this.moveCount = moveCount;
+	}
+	
+	public int getMoveCount() {
+		return moveCount;
+	}
+	
+	public String getPieceType() {
+		return id.substring(0, 2);
+	}
 }
