@@ -34,8 +34,8 @@ public class Main extends JFrame implements MouseListener {
     private static final long serialVersionUID = 1L;
 
     // Variable Declaration
-    private static final int Height = 700;
-    private static final int Width = 1110;
+    private static final int Height = 800;
+    private static final int Width = 1200;
     private static List<Rook> whiteRooks, blackRooks;
     private static List<Knight> whiteKnights, blackKnights;
     private static List<Bishop> whiteBishops, blackBishops;
@@ -656,13 +656,35 @@ public class Main extends JFrame implements MouseListener {
                 		boardState[c.x][0].repaint();
                 	// This is the original code for the move function
                 	} else {
-	                    if (c.getpiece() != null)
+	                    if (c.getpiece() != null) {
 	                        c.removePiece();
+	                    } else if (previous.getpiece() instanceof Pawn) {
+	                        if (Math.abs(previous.y - c.y) > 0) {
+	                            // The pawn moved diagonally onto a vacant square
+	                            // En Passant, act accordingly
+	                            boardState[previous.x][c.y].removePiece();
+	                            boardState[previous.x][c.y].invalidate();
+	                            boardState[previous.x][c.y].validate();
+	                            boardState[previous.x][c.y].repaint();
+	                        }
+	                    }
 	                    c.setPiece(previous.getpiece());
                 	}
                     if (previous.ischeck())
                         previous.removecheck();
                     previous.removePiece();
+                    for (Pawn p : whitePawns) {
+                        p.setJustSkipped(false);
+                    }
+                    for (Pawn p : blackPawns) {
+                        p.setJustSkipped(false);
+                    }
+                    // Check if pawn just skipped
+                    if (c.getpiece() instanceof Pawn) {
+                        if (Math.abs(previous.x - c.x) == 2) {
+                            ((Pawn)c.getpiece()).setJustSkipped(true);
+                        }
+                    }
                     if (getKing(chance ^ 1).isindanger(boardState)) {
                         boardState[getKing(chance ^ 1).getx()][getKing(chance ^ 1).gety()].setcheck();
                         if (checkmate(getKing(chance ^ 1).getcolor())) {
