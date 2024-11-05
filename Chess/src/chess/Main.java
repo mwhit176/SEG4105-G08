@@ -343,6 +343,21 @@ public class Main extends JFrame implements MouseListener {
         else
             return blackKing;
     }
+
+    private int[] findKing(Cell[][] position, int color){
+        for (Cell[] row : position) {
+            for (Cell cell : row){
+                Piece temp = cell.getpiece();
+
+                if (temp != null && temp instanceof King && temp.getcolor() == color){
+                    int[] result = {cell.x, cell.y};
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
     
     private boolean isStalemate(int color, Cell[][] position) {
     	boolean isStaleMate = true;
@@ -353,9 +368,20 @@ public class Main extends JFrame implements MouseListener {
     		Piece piece = pieces.get(i);
     		ArrayList<Cell> moves = piece.move(position);
     		
-    		if (piece instanceof King) moves = filterdestination(moves, position[piece.getx()][piece.gety()]);
+    		if (piece instanceof King) { 
+                moves = willkingbeindanger(position[piece.getx()][piece.gety()], moves);
+            }
     		
     		isStaleMate = moves.size() == 0;
+    		
+    		if (!isStaleMate) {
+    			System.out.println("It is not stalemate " + piece.getId() + " can move");
+    			System.out.println("It has " + moves.size() + " moves");
+    		} 
+    		else {
+    			System.out.println("It could be stalemate " + piece.getId() + " can not move");
+    		}
+    		
     		i++;
     	}
     	
@@ -407,17 +433,27 @@ public class Main extends JFrame implements MouseListener {
         if (newboardstate[tocell.x][tocell.y].getpiece() != null)
             newboardstate[tocell.x][tocell.y].removePiece();
 
-        newboardstate[tocell.x][tocell.y].setPiece(newboardstate[fromcell.x][fromcell.y].getpiece());
-        if (newboardstate[tocell.x][tocell.y].getpiece() instanceof King) {
-            ((King) (newboardstate[tocell.x][tocell.y].getpiece())).setx(tocell.x);
-            ((King) (newboardstate[tocell.x][tocell.y].getpiece())).sety(tocell.y);
-        }
+        Piece movingPiece = newboardstate[fromcell.x][fromcell.y].getpiece();
+        newboardstate[tocell.x][tocell.y].setPiece(movingPiece);
         newboardstate[fromcell.x][fromcell.y].removePiece();
-        if (((King) (newboardstate[getKing(chance).getx()][getKing(chance).gety()].getpiece()))
-                .isindanger(newboardstate) == true)
+        
+        int[] position = findKing(newboardstate, movingPiece.getcolor());
+        King kingInNewBoard = (King) newboardstate[position[0]][position[1]].getpiece();
+        if (kingInNewBoard.isindanger(newboardstate, position[0], position[1]) == true)
             return true;
         else
             return false;
+    }
+    
+    private ArrayList<Cell> willkingbeindanger(Cell fromCell,List<Cell> destinations) {
+    	ArrayList<Cell> filteredMoves = new ArrayList<Cell>();
+    	
+    	for (int i = 0; i < destinations.size(); i++) {
+    		Cell toCell = destinations.get(i);
+    		if (!willkingbeindanger(fromCell, toCell)) filteredMoves.add(toCell);
+    	}
+    	
+    	return filteredMoves;
     }
 
     // A function to eliminate the possible moves that will put the King in danger
