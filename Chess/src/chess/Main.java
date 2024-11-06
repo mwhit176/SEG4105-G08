@@ -78,29 +78,7 @@ public class Main extends JFrame implements MouseListener {
 
     public static void main(String[] args) {
 
-        // variable initialization
-        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0, 7, 0), new Rook("WR02", "White_Rook.png", 0, 7, 7));
-        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1, 0, 0), new Rook("BR02", "Black_Rook.png", 1, 0, 7));
-        whiteKnights = Arrays.asList(new Knight("WN01", "White_Knight.png", 0, 7, 1),
-                new Knight("WN02", "White_Knight.png", 0, 7, 6));
-        blackKnights = Arrays.asList(new Knight("BN01", "Black_Knight.png", 1, 0, 1),
-                new Knight("BN02", "Black_Knight.png", 1, 0, 6));
-        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0, 7, 2),
-                new Bishop("WB02", "White_Bishop.png", 0, 7, 5));
-        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1, 0, 2),
-                new Bishop("BB02", "Black_Bishop.png", 1, 0, 5));
-        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0, 7, 4));
-        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1, 0, 4));
-        whiteKing = new King("WK", "White_King.png", 0, 7, 3);
-        blackKing = new King("BK", "Black_King.png", 1, 0, 3);
-        whitePawns = new ArrayList<Pawn>();
-        for (int i = 0; i < 8; i++) {
-            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0, 6, i));
-        }
-        blackPawns = new ArrayList<Pawn>();
-        for (int i = 0; i < 8; i++) {
-            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1, 1, i));
-        }
+        initializePieces();
 
         // Setting up the board
         Mainboard = new Main();
@@ -373,15 +351,6 @@ public class Main extends JFrame implements MouseListener {
             }
     		
     		isStaleMate = moves.size() == 0;
-    		
-    		if (!isStaleMate) {
-    			System.out.println("It is not stalemate " + piece.getId() + " can move");
-    			System.out.println("It has " + moves.size() + " moves");
-    		} 
-    		else {
-    			System.out.println("It could be stalemate " + piece.getId() + " can not move");
-    		}
-    		
     		i++;
     	}
     	
@@ -589,6 +558,10 @@ public class Main extends JFrame implements MouseListener {
         end = true;
         Mainboard.disable();
         Mainboard.dispose();
+
+        clearPieces();
+        initializePieces();
+
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
@@ -923,6 +896,47 @@ public class Main extends JFrame implements MouseListener {
             j.repaint();
             j.add(det);
             selected = true;
+        }
+    }
+
+    private static void clearPieces(){
+        whiteBishops = new ArrayList<Bishop>();
+        whiteKing = null;
+        whiteKnights = new ArrayList<Knight>();
+        whitePawns = new ArrayList<Pawn>();
+        whiteQueens = new ArrayList<Queen>();
+        whiteRooks = new ArrayList<Rook>();
+
+        blackBishops = new ArrayList<Bishop>();
+        blackKing = null;
+        blackKnights = new ArrayList<Knight>();
+        blackPawns = new ArrayList<Pawn>();
+        blackQueens = new ArrayList<Queen>();
+        blackRooks = new ArrayList<Rook>();
+    }
+
+    private static void initializePieces(){
+        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0, 7, 0), new Rook("WR02", "White_Rook.png", 0, 7, 7));
+        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1, 0, 0), new Rook("BR02", "Black_Rook.png", 1, 0, 7));
+        whiteKnights = Arrays.asList(new Knight("WN01", "White_Knight.png", 0, 7, 1),
+                new Knight("WN02", "White_Knight.png", 0, 7, 6));
+        blackKnights = Arrays.asList(new Knight("BN01", "Black_Knight.png", 1, 0, 1),
+                new Knight("BN02", "Black_Knight.png", 1, 0, 6));
+        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0, 7, 2),
+                new Bishop("WB02", "White_Bishop.png", 0, 7, 5));
+        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1, 0, 2),
+                new Bishop("BB02", "Black_Bishop.png", 1, 0, 5));
+        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0, 7, 4));
+        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1, 0, 4));
+        whiteKing = new King("WK", "White_King.png", 0, 7, 3);
+        blackKing = new King("BK", "Black_King.png", 1, 0, 3);
+        whitePawns = new ArrayList<Pawn>();
+        for (int i = 0; i < 8; i++) {
+            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0, 6, i));
+        }
+        blackPawns = new ArrayList<Pawn>();
+        for (int i = 0; i < 8; i++) {
+            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1, 1, i));
         }
     }
 }
