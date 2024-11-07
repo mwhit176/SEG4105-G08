@@ -567,6 +567,8 @@ public class Main extends JFrame implements MouseListener {
         clearPieces();
         initializePieces();
 
+        resetTrivialMoveCounter();
+
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
@@ -685,13 +687,12 @@ public class Main extends JFrame implements MouseListener {
                     
                     //Check for stalemate
                     if (isStalemate(chance, boardState)) {
-                    	System.out.println("Stalemate!!");
                     	triggerDraw("Stalemate");
                     }
 
                     increaseTrivialMoveCounter();
                     if (trivialMovesCounter >= 50){
-                        triggerDraw();
+                        triggerDraw("50 move rule");
                     }
                     
                     if (!end) {
