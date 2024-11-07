@@ -284,7 +284,7 @@ public class Main extends JFrame implements MouseListener {
     public void changechance() {
         if (boardState[getKing(chance).getx()][getKing(chance).gety()].ischeck()) {
             chance ^= 1;
-            gameend(false);
+            triggerMate();
         }
         if (destinationlist.isEmpty() == false)
             cleandestinations(destinationlist);
@@ -311,7 +311,7 @@ public class Main extends JFrame implements MouseListener {
         	stateHash.replace(stateString, stateHash.get(stateString) + 1);
         }
         if (stateHash.get(stateString).intValue() == 3) {
-        	gameend(true);
+        	triggerDraw("Threefold Repetition");
         }
     }
 
@@ -514,12 +514,16 @@ public class Main extends JFrame implements MouseListener {
         return true;
     }
     
-    private void triggerDraw() {
-        gameend(true);
+    private void triggerMate() {
+        gameend(false, null);
+    }
+    
+    private void triggerDraw(String message) {
+        gameend(true, message);
     }
 
     @SuppressWarnings("deprecation")
-    private void gameend(boolean isDraw) {
+    private void gameend(boolean isDraw, String message) {
         cleandestinations(destinationlist);
         displayTime.disable();
         timer.countdownTimer.stop();
@@ -537,7 +541,7 @@ public class Main extends JFrame implements MouseListener {
             }
             JOptionPane.showMessageDialog(board, "Checkmate!!!\n" + winner + " wins");
         } else {
-            JOptionPane.showMessageDialog(board, "Draw.\nNobody wins.");
+            JOptionPane.showMessageDialog(board, "Draw.\n" + message);
         }
         
         WhitePlayer.remove(wdetails);
@@ -670,7 +674,7 @@ public class Main extends JFrame implements MouseListener {
                             previous.deselect();
                             if (previous.getpiece() != null)
                                 previous.removePiece();
-                            gameend(false);
+                            triggerMate();
                         }
                     }
                     if (getKing(chance).isindanger(boardState) == false)
@@ -682,7 +686,7 @@ public class Main extends JFrame implements MouseListener {
                     //Check for stalemate
                     if (isStalemate(chance, boardState)) {
                     	System.out.println("Stalemate!!");
-                    	triggerDraw();
+                    	triggerDraw("Stalemate");
                     }
 
                     increaseTrivialMoveCounter();
