@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import chess.Cell;
 
 public class King extends Piece {
-
-    private int x, y; // Extra variables for King class to keep a track of king's position
     boolean castle;
     // King Constructor
     public King(String i, String p, int c, int x, int y) {
@@ -15,23 +13,6 @@ public class King extends Piece {
         setId(i);
         setPath(p);
         setColor(c);
-    }
-
-    // general value access functions
-    public void setx(int x) {
-        this.x = x;
-    }
-
-    public void sety(int y) {
-        this.y = y;
-    }
-
-    public int getx() {
-        return x;
-    }
-
-    public int gety() {
-        return y;
     }
     
     public boolean getCastle() {
@@ -47,13 +28,8 @@ public class King extends Piece {
         // King can move only one step. So all the adjacent 8 cells have been
         // considered.
         possiblemoves.clear();
-        int posx[] = { x, x, x + 1, x + 1, x + 1, x - 1, x - 1, x - 1 };
-        int posy[] = { y - 1, y + 1, y - 1, y, y + 1, y - 1, y, y + 1 };
-        for (int i = 0; i < 8; i++)
-            if ((posx[i] >= 0 && posx[i] < 8 && posy[i] >= 0 && posy[i] < 8))
-                if ((state[posx[i]][posy[i]].getpiece() == null
-                        || state[posx[i]][posy[i]].getpiece().getcolor() != this.getcolor()))
-                    possiblemoves.add(state[posx[i]][posy[i]]);
+        possiblemoves = getCandidateMoves(state);
+        
         if (this.getMoveCount() == 0 && !isindanger(state)) {
         	Piece rightPiece = state[x][y+4].getpiece();
         	Piece leftPiece = state[x][y-3].getpiece();
@@ -103,7 +79,7 @@ public class King extends Piece {
     // for a given board state
     public boolean isindanger(Cell state[][]) {
 
-       return isindanger(state, x, y);
+       return isindanger(state, this.getx(), this.gety());
     }
     
     public boolean isindanger(Cell state[][], int x, int y) {
@@ -262,5 +238,23 @@ public class King extends Piece {
                 return true;
         }
         return false;
+    }
+
+    private ArrayList<Cell> getCandidateMoves(Cell state[][]){
+        ArrayList<Cell> candidates = new ArrayList<Cell>();
+        int x = this.getx(), y = this.gety();
+
+        int posx[] = { x, x, x + 1, x + 1, x + 1, x - 1, x - 1, x - 1 };
+        int posy[] = { y - 1, y + 1, y - 1, y, y + 1, y - 1, y, y + 1 };
+        for (int i = 0; i < 8; i++){
+            if (posx[i] >= 0 && posx[i] < 8 && posy[i] >= 0 && posy[i] < 8){
+                boolean positionIsAvailable = state[posx[i]][posy[i]].getpiece() == null || (state[posx[i]][posy[i]].getpiece().getcolor() != this.getcolor());
+                boolean positionIsNotCurrent = !(posx[i] == x && posy[i] == y);
+
+                if (positionIsAvailable && positionIsNotCurrent){ candidates.add(state[posx[i]][posy[i]]); }
+            }
+        }
+
+        return candidates;
     }
 }

@@ -78,29 +78,7 @@ public class Main extends JFrame implements MouseListener {
 
     public static void main(String[] args) {
 
-        // variable initialization
-        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0), new Rook("WR02", "White_Rook.png", 0));
-        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1), new Rook("BR02", "Black_Rook.png", 1));
-        whiteKnights = Arrays.asList(new Knight("WN01", "White_Knight.png", 0),
-                new Knight("WN02", "White_Knight.png", 0));
-        blackKnights = Arrays.asList(new Knight("BN01", "Black_Knight.png", 1),
-                new Knight("BN02", "Black_Knight.png", 1));
-        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0),
-                new Bishop("WB02", "White_Bishop.png", 0));
-        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1),
-                new Bishop("BB02", "Black_Bishop.png", 1));
-        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0));
-        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1));
-        whiteKing = new King("WK", "White_King.png", 0, 7, 3);
-        blackKing = new King("BK", "Black_King.png", 1, 0, 3);
-        whitePawns = new ArrayList<Pawn>();
-        for (int i = 0; i < 8; i++) {
-            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0));
-        }
-        blackPawns = new ArrayList<Pawn>();
-        for (int i = 0; i < 8; i++) {
-            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1));
-        }
+        initializePieces();
 
         // Setting up the board
         Mainboard = new Main();
@@ -344,6 +322,55 @@ public class Main extends JFrame implements MouseListener {
             return blackKing;
     }
 
+    private int[] findKing(Cell[][] position, int color){
+        for (Cell[] row : position) {
+            for (Cell cell : row){
+                Piece temp = cell.getpiece();
+
+                if (temp != null && temp instanceof King && temp.getcolor() == color){
+                    int[] result = {cell.x, cell.y};
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
+    
+    private boolean isStalemate(int color, Cell[][] position) {
+    	boolean isStaleMate = true;
+    	List<Piece> pieces = getPieces(color, position);
+    	
+    	int i = 0;
+    	while (isStaleMate && i < pieces.size()) {
+    		Piece piece = pieces.get(i);
+    		ArrayList<Cell> moves = piece.move(position);
+    		
+    		if (piece instanceof King) { 
+                moves = willkingbeindanger(position[piece.getx()][piece.gety()], moves);
+            }
+    		
+    		isStaleMate = moves.size() == 0;
+    		i++;
+    	}
+    	
+    	return isStaleMate;
+    }
+    
+    private List<Piece> getPieces(int color, Cell[][] position){
+    	List<Piece> pieces = new ArrayList<Piece>();
+    	
+    	for (int i = 0; i < 8; i++) {
+    		for (int j = 0; j < 8; j++) {
+    			Piece piece = position[i][j].getpiece();
+    			
+    			if (piece != null && color == piece.getcolor()) pieces.add(piece);
+    		}
+    	}
+    	
+    	return pieces;
+    }
+
     // A function to clean the highlights of possible destination cells
     private void cleandestinations(ArrayList<Cell> destlist) // Function to clear the last move's destinations
     {
@@ -375,17 +402,27 @@ public class Main extends JFrame implements MouseListener {
         if (newboardstate[tocell.x][tocell.y].getpiece() != null)
             newboardstate[tocell.x][tocell.y].removePiece();
 
-        newboardstate[tocell.x][tocell.y].setPiece(newboardstate[fromcell.x][fromcell.y].getpiece());
-        if (newboardstate[tocell.x][tocell.y].getpiece() instanceof King) {
-            ((King) (newboardstate[tocell.x][tocell.y].getpiece())).setx(tocell.x);
-            ((King) (newboardstate[tocell.x][tocell.y].getpiece())).sety(tocell.y);
-        }
+        Piece movingPiece = newboardstate[fromcell.x][fromcell.y].getpiece();
+        newboardstate[tocell.x][tocell.y].setPiece(movingPiece);
         newboardstate[fromcell.x][fromcell.y].removePiece();
-        if (((King) (newboardstate[getKing(chance).getx()][getKing(chance).gety()].getpiece()))
-                .isindanger(newboardstate) == true)
+        
+        int[] position = findKing(newboardstate, movingPiece.getcolor());
+        King kingInNewBoard = (King) newboardstate[position[0]][position[1]].getpiece();
+        if (kingInNewBoard.isindanger(newboardstate, position[0], position[1]) == true)
             return true;
         else
             return false;
+    }
+    
+    private ArrayList<Cell> willkingbeindanger(Cell fromCell,List<Cell> destinations) {
+    	ArrayList<Cell> filteredMoves = new ArrayList<Cell>();
+    	
+    	for (int i = 0; i < destinations.size(); i++) {
+    		Cell toCell = destinations.get(i);
+    		if (!willkingbeindanger(fromCell, toCell)) filteredMoves.add(toCell);
+    	}
+    	
+    	return filteredMoves;
     }
 
     // A function to eliminate the possible moves that will put the King in danger
@@ -521,6 +558,10 @@ public class Main extends JFrame implements MouseListener {
         end = true;
         Mainboard.disable();
         Mainboard.dispose();
+
+        clearPieces();
+        initializePieces();
+
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
@@ -628,11 +669,16 @@ public class Main extends JFrame implements MouseListener {
                     }
                     if (getKing(chance).isindanger(boardState) == false)
                         boardState[getKing(chance).getx()][getKing(chance).gety()].removecheck();
-                    if (c.getpiece() instanceof King) {
-                        ((King) c.getpiece()).setx(c.x);
-                        ((King) c.getpiece()).sety(c.y);
-                    }
+                    c.getpiece().setx(c.x);
+                    c.getpiece().sety(c.y);
                     changechance();
+                    
+                    //Check for stalemate
+                    if (isStalemate(chance, boardState)) {
+                    	System.out.println("Stalemate!!");
+                    	triggerDraw();
+                    }
+                    
                     if (!end) {
                         timer.reset();
                         timer.start();
@@ -850,6 +896,47 @@ public class Main extends JFrame implements MouseListener {
             j.repaint();
             j.add(det);
             selected = true;
+        }
+    }
+
+    private static void clearPieces(){
+        whiteBishops = new ArrayList<Bishop>();
+        whiteKing = null;
+        whiteKnights = new ArrayList<Knight>();
+        whitePawns = new ArrayList<Pawn>();
+        whiteQueens = new ArrayList<Queen>();
+        whiteRooks = new ArrayList<Rook>();
+
+        blackBishops = new ArrayList<Bishop>();
+        blackKing = null;
+        blackKnights = new ArrayList<Knight>();
+        blackPawns = new ArrayList<Pawn>();
+        blackQueens = new ArrayList<Queen>();
+        blackRooks = new ArrayList<Rook>();
+    }
+
+    private static void initializePieces(){
+        whiteRooks = Arrays.asList(new Rook("WR01", "White_Rook.png", 0, 7, 0), new Rook("WR02", "White_Rook.png", 0, 7, 7));
+        blackRooks = Arrays.asList(new Rook("BR01", "Black_Rook.png", 1, 0, 0), new Rook("BR02", "Black_Rook.png", 1, 0, 7));
+        whiteKnights = Arrays.asList(new Knight("WN01", "White_Knight.png", 0, 7, 1),
+                new Knight("WN02", "White_Knight.png", 0, 7, 6));
+        blackKnights = Arrays.asList(new Knight("BN01", "Black_Knight.png", 1, 0, 1),
+                new Knight("BN02", "Black_Knight.png", 1, 0, 6));
+        whiteBishops = Arrays.asList(new Bishop("WB01", "White_Bishop.png", 0, 7, 2),
+                new Bishop("WB02", "White_Bishop.png", 0, 7, 5));
+        blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1, 0, 2),
+                new Bishop("BB02", "Black_Bishop.png", 1, 0, 5));
+        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0, 7, 4));
+        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1, 0, 4));
+        whiteKing = new King("WK", "White_King.png", 0, 7, 3);
+        blackKing = new King("BK", "Black_King.png", 1, 0, 3);
+        whitePawns = new ArrayList<Pawn>();
+        for (int i = 0; i < 8; i++) {
+            whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0, 6, i));
+        }
+        blackPawns = new ArrayList<Pawn>();
+        for (int i = 0; i < 8; i++) {
+            blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1, 1, i));
         }
     }
 }
