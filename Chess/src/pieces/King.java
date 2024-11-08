@@ -31,14 +31,14 @@ public class King extends Piece {
         possiblemoves = getCandidateMoves(state);
         
         if (this.getMoveCount() == 0 && !isindanger(state)) {
-        	Piece rightPiece = state[x][y+4].getpiece();
-        	Piece leftPiece = state[x][y-3].getpiece();
+        	Piece rightPiece = state[x][y+3].getpiece();
+        	Piece leftPiece = state[x][y-4].getpiece();
         	
         	// Does checks for queen side castle
         	if (rightPiece instanceof Rook && rightPiece.getcolor() == this.getcolor()) {
         		castle = true;
         		if (rightPiece.getMoveCount() == 0) {
-        			for (int i = y+1; i < y+4; i++) {
+        			for (int i = y+1; i < y+3; i++) {
         				if (castle && state[x][i].getpiece() != null) {
         					castle = false;
         				}
@@ -57,7 +57,7 @@ public class King extends Piece {
         	if (leftPiece instanceof Rook && leftPiece.getcolor() == this.getcolor()) {
         		castle = true;
         		if (leftPiece.getMoveCount() == 0) {
-        			for (int i = y-1; i > y-3; i--) {
+        			for (int i = y-1; i > y-4; i--) {
         				if (castle && state[x][i].getpiece() != null) {
         					castle = false;
         				}
