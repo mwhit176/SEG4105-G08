@@ -75,6 +75,7 @@ public class Main extends JFrame implements MouseListener {
     private JButton start, wselect, bselect, WNewPlayer, BNewPlayer, playVsAI;
     public static int timeRemaining = 60;
     private static HashMap<String, Integer> stateHash;
+    private static int trivialMoveCounter = 0;
 
     public static void main(String[] args) {
 
@@ -673,6 +674,8 @@ public class Main extends JFrame implements MouseListener {
         clearPieces();
         initializePieces();
 
+        resetTrivialMoveCounter();
+
         Mainboard = new Main();
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
@@ -741,6 +744,8 @@ public class Main extends JFrame implements MouseListener {
                 	// This is the original code for the move function
                 	} else {
 	                    if (c.getpiece() != null) {
+                            //A piece was captured
+                            resetTrivialMoveCounter();
 	                        c.removePiece();
 	                    } else if (previous.getpiece() instanceof Pawn) {
 	                        if (Math.abs(previous.y - c.y) > 0) {
@@ -751,6 +756,9 @@ public class Main extends JFrame implements MouseListener {
 	                            boardState[previous.x][c.y].validate();
 	                            boardState[previous.x][c.y].repaint();
 	                        }
+
+                            //reset counter if pawn moves
+                            resetTrivialMoveCounter();
 	                    }
 	                    c.setPiece(previous.getpiece());
                 	}
@@ -786,8 +794,12 @@ public class Main extends JFrame implements MouseListener {
                     
                     //Check for stalemate
                     if (isStalemate(chance, boardState)) {
-                    	System.out.println("Stalemate!!");
                     	triggerDraw("Stalemate");
+                    }
+
+                    increaseTrivialMoveCounter();
+                    if (trivialMoveCounter >= 50){
+                        triggerDraw("50 Move Rule");
                     }
                     
                     if (!end) {
@@ -1049,5 +1061,13 @@ public class Main extends JFrame implements MouseListener {
         for (int i = 0; i < 8; i++) {
             blackPawns.add(new Pawn("BP0" + (i + 1), "Black_Pawn.png", 1, 1, i));
         }
+    }
+
+    private void resetTrivialMoveCounter(){
+        trivialMoveCounter = 0;
+    } 
+
+    private void increaseTrivialMoveCounter(){
+        trivialMoveCounter++;
     }
 }
