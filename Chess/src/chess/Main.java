@@ -75,7 +75,7 @@ public class Main extends JFrame implements MouseListener {
     private Button start, wselect, bselect, WNewPlayer, BNewPlayer;
     public static int timeRemaining = 60;
     private static HashMap<String, Integer> stateHash;
-    private static int trivialMovesCounter = 0;
+    private static int trivialMoveCounter = 0;
 
     public static void main(String[] args) {
 
@@ -691,8 +691,8 @@ public class Main extends JFrame implements MouseListener {
                     }
 
                     increaseTrivialMoveCounter();
-                    if (trivialMovesCounter >= 50){
-                        triggerDraw("50 move rule");
+                    if (trivialMoveCounter >= 50){
+                        triggerDraw("50 Move Rule");
                     }
                     
                     if (!end) {
@@ -957,10 +957,10 @@ public class Main extends JFrame implements MouseListener {
     }
 
     private void resetTrivialMoveCounter(){
-        trivialMovesCounter = 0;
+        trivialMoveCounter = 0;
     } 
 
     private void increaseTrivialMoveCounter(){
-        trivialMovesCounter++;
+        trivialMoveCounter++;
     }
 }
