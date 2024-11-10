@@ -12,7 +12,9 @@ import chess.Cell;
 public class Knight extends Piece {
 
     // Constructor
-    public Knight(String i, String p, int c) {
+    public Knight(String i, String p, int c, int x, int y) {
+        setx(x);
+        sety(y);
         setId(i);
         setPath(p);
         setColor(c);

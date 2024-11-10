@@ -9,9 +9,13 @@ import chess.Cell;
  * This is the Pawn Class inherited from the piece
  */
 public class Pawn extends Piece {
+    
+    private boolean justSkipped = false;
 
-    // Constructors
-    public Pawn(String i, String p, int c) {
+    // COnstructors
+    public Pawn(String i, String p, int c, int x, int y) {
+        setx(x);
+        sety(y);
         setId(i);
         setPath(p);
         setColor(c);
@@ -37,7 +41,21 @@ public class Pawn extends Piece {
                 possiblemoves.add(state[x - 1][y - 1]);
             if ((y < 7) && (state[x - 1][y + 1].getpiece() != null) && (state[x - 1][y + 1].getpiece().getcolor() != this.getcolor()))
                 possiblemoves.add(state[x - 1][y + 1]);
-        } else { // Black pawn
+            // En Passant White Left
+            if ((x == 3) && (y > 0) && (state[x][y - 1].getpiece() != null)
+                    && (state[x][y - 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y - 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y - 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x - 1][y - 1]);
+            }
+            // En Passant White Right
+            if ((x == 3) && (y < 7) && (state[x][y + 1].getpiece() != null)
+                    && (state[x][y + 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y + 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y + 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x - 1][y + 1]);
+            }
+        } else {
             if (x == 8)
                 return possiblemoves;
             if (state[x + 1][y].getpiece() == null) {
@@ -49,6 +67,20 @@ public class Pawn extends Piece {
                 possiblemoves.add(state[x + 1][y - 1]);
             if ((y < 7) && (state[x + 1][y + 1].getpiece() != null) && (state[x + 1][y + 1].getpiece().getcolor() != this.getcolor()))
                 possiblemoves.add(state[x + 1][y + 1]);
+            // En Passant Black Left
+            if ((x == 4) && (y > 0) && (state[x][y - 1].getpiece() != null)
+                    && (state[x][y - 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y - 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y - 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x + 1][y - 1]);
+            }
+            // En Passant Black Right
+            if ((x == 4) && (y < 7) && (state[x][y + 1].getpiece() != null)
+                    && (state[x][y + 1].getpiece().getcolor() != this.getcolor())
+                    && (state[x][y + 1].getpiece() instanceof Pawn)
+                    && ((Pawn)state[x][y + 1].getpiece()).getJustSkipped()) {
+                possiblemoves.add(state[x + 1][y + 1]);
+            }
         }
 
         // Check for promotion if the pawn reaches the last rank
@@ -87,5 +119,12 @@ public class Pawn extends Piece {
             }
         }
         return promotedPiece;
+    }
+    public boolean getJustSkipped() {
+        return this.justSkipped;
+    }
+    
+    public void setJustSkipped(boolean justSkipped) {
+        this.justSkipped = justSkipped;
     }
 }

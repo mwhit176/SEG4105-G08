@@ -11,7 +11,9 @@ import chess.Cell;
 public class Rook extends Piece {
 
     // Constructor
-    public Rook(String i, String p, int c) {
+    public Rook(String i, String p, int c, int x, int y) {
+        setx(x);
+        sety(y);
         setId(i);
         setPath(p);
         setColor(c);
@@ -71,4 +73,6 @@ public class Rook extends Piece {
         }
         return possiblemoves;
     }
+    
+    
 }

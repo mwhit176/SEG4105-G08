@@ -1,6 +1,8 @@
 package chess;
 
 import java.awt.*;
+import java.util.Objects;
+
 import javax.swing.*;
 
 import pieces.*;
@@ -28,7 +30,7 @@ public class Cell extends JPanel implements Cloneable {
 
         setLayout(new BorderLayout());
 
-        if ((x + y) % 2 == 0)
+        if ((x + y) % 2 == 1)
             setBackground(new Color(113, 198, 113));
 
         else
@@ -44,7 +46,7 @@ public class Cell extends JPanel implements Cloneable {
         this.x = cell.x;
         this.y = cell.y;
         setLayout(new BorderLayout());
-        if ((x + y) % 2 == 0)
+        if ((x + y) % 2 == 1)
             setBackground(new Color(113, 198, 113));
         else
             setBackground(Color.white);
@@ -121,7 +123,7 @@ public class Cell extends JPanel implements Cloneable {
     public void removecheck() // Function to deselect check
     {
         this.setBorder(null);
-        if ((x + y) % 2 == 0)
+        if ((x + y) % 2 == 1)
             setBackground(new Color(113, 198, 113));
         else
             setBackground(Color.white);
