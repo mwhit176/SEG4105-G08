@@ -1,8 +1,10 @@
 package pieces;
 
 import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
 
+import pieces.Queen;
 import chess.Cell;
 
 /**
@@ -30,8 +32,16 @@ public class Pawn extends Piece {
         possiblemoves.clear();
         
         if (getcolor() == 0) { // White pawn
-            if (x == 0)
-                return possiblemoves;
+            if (x == 0) {
+            	Piece promotedPiece = promote(); //Promote white pawn if it makes it to the other side
+                if (promotedPiece != null) {
+                    possiblemoves.clear();
+                    Cell promotionCell = new Cell(promotedPiece.getx(), promotedPiece.gety(), promotedPiece);
+                    promotionCell.setPiece(promotedPiece); // Set promoted piece only if not null
+                    possiblemoves.add(promotionCell);
+                }
+            	return possiblemoves;
+            }
             if (state[x - 1][y].getpiece() == null) {
                 possiblemoves.add(state[x - 1][y]);
                 if (x == 6 && state[4][y].getpiece() == null)
@@ -55,9 +65,17 @@ public class Pawn extends Piece {
                     && ((Pawn)state[x][y + 1].getpiece()).getJustSkipped()) {
                 possiblemoves.add(state[x - 1][y + 1]);
             }
-        } else {
-            if (x == 8)
+        } else { //black pawn
+            if (x == 7) {
+            	Piece promotedPiece = promote(); //Promote Black Pawn if it makes it to the other side
+                if (promotedPiece != null) {
+                    possiblemoves.clear();
+                    Cell promotionCell = new Cell(promotedPiece.getx(), promotedPiece.gety(), promotedPiece);
+                    promotionCell.setPiece(promotedPiece); // Set promoted piece only if not null
+                    possiblemoves.add(promotionCell);
+                }
                 return possiblemoves;
+            }
             if (state[x + 1][y].getpiece() == null) {
                 possiblemoves.add(state[x + 1][y]);
                 if (x == 1 && state[3][y].getpiece() == null)
@@ -83,18 +101,8 @@ public class Pawn extends Piece {
             }
         }
 
-        // Check for promotion if the pawn reaches the last rank
-        if ((getcolor() == 0 && x == 0) || (getcolor() == 1 && x == 7)) {
-            Piece promotedPiece = promote();
-            if (promotedPiece != null) {
-                possiblemoves.clear(); // Clear possible moves to avoid confusion
-                possiblemoves.add(new Cell(x, y, promotedPiece));
-            }
-        }
-
         return possiblemoves;
     }
-
     public Piece promote() {
         String[] options = { "Queen", "Rook", "Bishop", "Knight" };
         String choice = (String) JOptionPane.showInputDialog(null, 
@@ -110,39 +118,40 @@ public class Pawn extends Piece {
             switch (choice) {
                 case "Queen":
                 	if(this.getcolor() == 0){
-                		promotedPiece = new Queen(getId(), "White_Queen.png", getcolor());
+                		promotedPiece = new Queen(getId(), "White_Queen.png", getcolor(), getx(), gety());
                 	}
                 	else {
-                		promotedPiece = new Queen(getId(), "Black_Queen.png", getcolor());
+                		promotedPiece = new Queen(getId(), "Black_Queen.png", getcolor(),  getx(), gety());
                 	}
                     break;
                 case "Rook":
                 	if(this.getcolor() == 0){
-                		promotedPiece = new Rook(getId(), "White_Rook.png", getcolor());
+                		promotedPiece = new Rook(getId(), "White_Rook.png", getcolor(),  getx(), gety());
                 	}
                 	else {
-                		promotedPiece = new Rook(getId(), "Black_Rook.png", getcolor());
+                		promotedPiece = new Rook(getId(), "Black_Rook.png", getcolor(),  getx(), gety());
                 	}
                     break;
                 case "Bishop":
                 	if(this.getcolor() == 0){
-                		promotedPiece = new Bishop(getId(), "White_Bishop.png", getcolor());
+                		promotedPiece = new Bishop(getId(), "White_Bishop.png", getcolor(), getx(), gety());
                 	}
                 	else {
-                		promotedPiece = new Bishop(getId(), "Black_Bishop.png", getcolor());
+                		promotedPiece = new Bishop(getId(), "Black_Bishop.png", getcolor(),  getx(), gety());
                 	}
                     break;
                 case "Knight":
                 	if(this.getcolor() == 0){
-                		promotedPiece = new Knight (getId(), "White_Knight.png", getcolor());
+                		promotedPiece = new Knight (getId(), "White_Knight.png", getcolor(),  getx(), gety());
                 	}
                 	else {
-                		promotedPiece = new Knight(getId(), "Black_Knight.png", getcolor());
+                		promotedPiece = new Knight(getId(), "Black_Knight.png", getcolor(),  getx(), gety());
                 	}
                     break;
             }
         }
         return promotedPiece;
+    }
     public boolean getJustSkipped() {
         return this.justSkipped;
     }
