@@ -96,30 +96,53 @@ public class Pawn extends Piece {
     }
 
     public Piece promote() {
-        // Open a dialog to choose the piece for promotion
         String[] options = { "Queen", "Rook", "Bishop", "Knight" };
-        String choice = (String) JOptionPane.showInputDialog(null, "Promote Pawn to:", "Pawn Promotion", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        String choice = (String) JOptionPane.showInputDialog(null, 
+                "Promote Pawn to:", 
+                "Pawn Promotion", 
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                options, 
+                options[0]);
 
-        // Create the new piece based on the user's choice
         Piece promotedPiece = null;
         if (choice != null) {
             switch (choice) {
                 case "Queen":
-                    promotedPiece = new Queen(getId(), getPath(), getcolor());
+                	if(this.getcolor() == 0){
+                		promotedPiece = new Queen(getId(), "White_Queen.png", getcolor());
+                	}
+                	else {
+                		promotedPiece = new Queen(getId(), "Black_Queen.png", getcolor());
+                	}
                     break;
                 case "Rook":
-                    promotedPiece = new Rook(getId(), getPath(), getcolor());
+                	if(this.getcolor() == 0){
+                		promotedPiece = new Rook(getId(), "White_Rook.png", getcolor());
+                	}
+                	else {
+                		promotedPiece = new Rook(getId(), "Black_Rook.png", getcolor());
+                	}
                     break;
                 case "Bishop":
-                    promotedPiece = new Bishop(getId(), getPath(), getcolor());
+                	if(this.getcolor() == 0){
+                		promotedPiece = new Bishop(getId(), "White_Bishop.png", getcolor());
+                	}
+                	else {
+                		promotedPiece = new Bishop(getId(), "Black_Bishop.png", getcolor());
+                	}
                     break;
                 case "Knight":
-                    promotedPiece = new Knight(getId(), getPath(), getcolor());
+                	if(this.getcolor() == 0){
+                		promotedPiece = new Knight (getId(), "White_Knight.png", getcolor());
+                	}
+                	else {
+                		promotedPiece = new Knight(getId(), "Black_Knight.png", getcolor());
+                	}
                     break;
             }
         }
         return promotedPiece;
-    }
     public boolean getJustSkipped() {
         return this.justSkipped;
     }
