@@ -169,6 +169,86 @@ public class Main extends JFrame implements MouseListener {
         BNewPlayer = new Button("New Player");
         WNewPlayer.addActionListener(new Handler(0));
         BNewPlayer.addActionListener(new Handler(1));
+        
+        JButton playVsAi = new JButton("Play vs AI!");
+        playVsAi.setBackground(Color.gray);
+        playVsAi.setForeground(Color.white);
+        playVsAi.setPreferredSize(new Dimension(120, 40));
+        
+        //Styling for aiButton to make it pretty
+        playVsAi.setFont(new Font("SansSerif", Font.BOLD, 18));
+        playVsAi.setBackground(new Color(135, 206, 250)); // Sky blue color
+        playVsAi.setForeground(Color.BLACK); // Black text
+        playVsAi.setFocusPainted(false);
+        playVsAi.setBorder(BorderFactory.createLineBorder(new Color(34, 139, 250), 3)); // Dark green border
+        playVsAi.setPreferredSize(new Dimension(200, 40)); // Size it to be more compact
+        
+        
+        playVsAi.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                playVsAi.setBackground(new Color(135, 206, 250)); // Darker green on hover
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                playVsAi.setBackground(new Color(135, 216, 255)); // Original color
+            }
+        });
+        //end styling
+        
+        playVsAi.addActionListener(e -> { //Popup panel for play vs AI button. Allows user to chose color and difficulty.
+            // Create popup frame
+            JFrame popupFrame = new JFrame("Play vs AI Settings");
+            popupFrame.setSize(300, 200);
+            popupFrame.setLayout(new GridLayout(4, 1));
+
+            // Dropdown for color selection
+            JPanel colorPanel = new JPanel(new FlowLayout());
+            JLabel colorLabel = new JLabel("Pick your starting color:");
+            JComboBox<String> colorDropdown = new JComboBox<>(new String[]{"", "Black", "White"});
+            colorPanel.add(colorLabel);
+            colorPanel.add(colorDropdown);
+
+            // Dropdown for difficulty selection
+            JPanel difficultyPanel = new JPanel(new FlowLayout());
+            JLabel difficultyLabel = new JLabel("Select difficulty:");
+            JComboBox<String> difficultyDropdown = new JComboBox<>(new String[]{"", "Easy", "Medium", "Hard"});
+            difficultyPanel.add(difficultyLabel);
+            difficultyPanel.add(difficultyDropdown);
+
+            // Start button, initially disabled
+            JButton startButton = new JButton("Start");
+            startButton.setPreferredSize(new Dimension(120, 40));
+            startButton.setEnabled(false);
+
+            // Enable the start button only when both selections are made
+            ActionListener enableStartButton = ae -> {
+                startButton.setEnabled(
+                    colorDropdown.getSelectedIndex() > 0 && difficultyDropdown.getSelectedIndex() > 0
+                );
+            };
+            colorDropdown.addActionListener(enableStartButton);
+            difficultyDropdown.addActionListener(enableStartButton);
+
+            // Action for start button
+            startButton.addActionListener(ae -> {
+                String selectedColor = (String) colorDropdown.getSelectedItem();
+                String selectedDifficulty = (String) difficultyDropdown.getSelectedItem();
+                PlayVsAI(selectedColor, selectedDifficulty);  // Call PlayVsAI with selected options
+                popupFrame.dispose();  // Close the popup
+            });
+
+            // Add components to the popup frame
+            popupFrame.add(colorPanel);
+            popupFrame.add(difficultyPanel);
+            popupFrame.add(startButton);
+            popupFrame.setVisible(true);
+        });
+        
+        
+        JPanel playVsAIContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        playVsAIContainer.add(playVsAi);
         wcombopanel.add(wscroll);
         wcombopanel.add(wselect);
         wcombopanel.add(WNewPlayer);
@@ -186,6 +266,7 @@ public class Main extends JFrame implements MouseListener {
         WhitePlayer.add(whitestats, BorderLayout.WEST);
         BlackPlayer.add(blackstats, BorderLayout.WEST);
         controlPanel.add(WhitePlayer);
+        controlPanel.add(playVsAIContainer);
         controlPanel.add(BlackPlayer);
 
         // Defining all the Cells
@@ -425,6 +506,12 @@ public class Main extends JFrame implements MouseListener {
     	
     	return filteredMoves;
     }
+     // Function to play against the AI with specified color and difficulty. Called After difficulty and color are chosen.
+     private void PlayVsAI(String color, String difficulty) {
+        // Implement your logic here based on the selected color and difficulty
+        System.out.println("Playing vs AI with color: " + color + " and difficulty: " + difficulty);
+    }
+
 
     // A function to eliminate the possible moves that will put the King in danger
     private ArrayList<Cell> filterdestination(ArrayList<Cell> destlist, Cell fromcell) {
