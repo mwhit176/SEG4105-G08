@@ -72,7 +72,7 @@ public class Main extends JFrame implements MouseListener {
     private String[] WNames = {}, BNames = {};
     private JSlider timeSlider;
     private BufferedImage image;
-    private Button start, wselect, bselect, WNewPlayer, BNewPlayer;
+    private JButton start, wselect, bselect, WNewPlayer, BNewPlayer, playVsAI;
     public static int timeRemaining = 60;
     private static HashMap<String, Integer> stateHash;
     private static int trivialMoveCounter = 0;
@@ -140,7 +140,7 @@ public class Main extends JFrame implements MouseListener {
         content.setBackground(Color.black);
         controlPanel = new JPanel();
         content.setLayout(new BorderLayout());
-        controlPanel.setLayout(new GridLayout(3, 3));
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         controlPanel.setBorder(BorderFactory.createTitledBorder(null, "Statistics", TitledBorder.TOP,
                 TitledBorder.CENTER, new Font("Lucida Calligraphy", Font.PLAIN, 20), Color.ORANGE));
 
@@ -163,12 +163,12 @@ public class Main extends JFrame implements MouseListener {
         bscroll = new JScrollPane(bcombo);
         wcombopanel.setLayout(new FlowLayout());
         bcombopanel.setLayout(new FlowLayout());
-        wselect = new Button("Select");
-        bselect = new Button("Select");
+        wselect = new JButton("Select");
+        bselect = new JButton("Select");
         wselect.addActionListener(new SelectHandler(0));
         bselect.addActionListener(new SelectHandler(1));
-        WNewPlayer = new Button("New Player");
-        BNewPlayer = new Button("New Player");
+        WNewPlayer = new JButton("New Player");
+        BNewPlayer = new JButton("New Player");
         WNewPlayer.addActionListener(new Handler(0));
         BNewPlayer.addActionListener(new Handler(1));
         wcombopanel.add(wscroll);
@@ -185,6 +185,14 @@ public class Main extends JFrame implements MouseListener {
         blackstats.add(new JLabel("Name   :"));
         blackstats.add(new JLabel("Played :"));
         blackstats.add(new JLabel("Won    :"));
+        playVsAI = new JButton("Play vs AI");
+        playVsAI.setBackground(Color.black);
+        playVsAI.setForeground(Color.white);
+        playVsAI.addActionListener(new PlayAIHandler());
+        playVsAI.setPreferredSize(new Dimension(120, 40));
+        playVsAI.setAlignmentX(Component.CENTER_ALIGNMENT);
+        controlPanel.add(playVsAI);        
+
         WhitePlayer.add(whitestats, BorderLayout.WEST);
         BlackPlayer.add(blackstats, BorderLayout.WEST);
         controlPanel.add(WhitePlayer);
@@ -239,7 +247,7 @@ public class Main extends JFrame implements MouseListener {
         showPlayer = new JPanel(new FlowLayout());
         showPlayer.add(timeSlider);
         JLabel setTime = new JLabel("Set Timer(in mins):");
-        start = new Button("Start");
+        start = new JButton("Start");
         start.setBackground(Color.black);
         start.setForeground(Color.white);
         start.addActionListener(new START());
@@ -280,6 +288,66 @@ public class Main extends JFrame implements MouseListener {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
+    class PlayAIHandler implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switchToAIMode();
+        }
+    }
+
+    private void switchToAIMode() {
+        content.removeAll();
+    
+        JPanel aiModePanel = new JPanel(new BorderLayout());
+    
+        JLabel statusDisplay = new JLabel("Play vs AI Mode", JLabel.CENTER);
+        statusDisplay.setFont(new Font("Arial", Font.BOLD, 28));
+        statusDisplay.setForeground(Color.BLUE);
+        statusDisplay.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0)); 
+
+        JPanel playerDetailsPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        playerDetailsPanel.setBorder(BorderFactory.createTitledBorder(null, "Statistics", TitledBorder.TOP, TitledBorder.CENTER, new Font("Lucida Calligraphy", Font.PLAIN, 20), Color.ORANGE));
+    
+        JPanel whitePlayerPanel = new JPanel(new BorderLayout());
+        whitePlayerPanel.setBorder(BorderFactory.createTitledBorder(null, "Player", TitledBorder.TOP, TitledBorder.CENTER, new Font("times new roman", Font.BOLD, 18), Color.RED));
+        JPanel whiteStats = new JPanel(new GridLayout(3, 1));
+        whiteStats.add(new JLabel("Name   : Player"));
+        whiteStats.add(new JLabel("Played : 1"));
+        whiteStats.add(new JLabel("Won    : 0"));
+        whitePlayerPanel.add(whiteStats, BorderLayout.CENTER);
+    
+        JPanel blackPlayerPanel = new JPanel(new BorderLayout());
+        blackPlayerPanel.setBorder(BorderFactory.createTitledBorder(null, "AI", TitledBorder.TOP, TitledBorder.CENTER, new Font("times new roman", Font.BOLD, 18), Color.BLUE));
+        JPanel blackStats = new JPanel(new GridLayout(3, 1));
+        blackStats.add(new JLabel("Name   : AI"));
+        blackStats.add(new JLabel("Played : 1"));
+        blackStats.add(new JLabel("Won    : 0"));
+        blackPlayerPanel.add(blackStats, BorderLayout.CENTER);
+    
+        playerDetailsPanel.add(whitePlayerPanel);
+        playerDetailsPanel.add(blackPlayerPanel);
+    
+        aiModePanel.add(statusDisplay, BorderLayout.NORTH);
+        aiModePanel.add(playerDetailsPanel, BorderLayout.WEST);
+    
+        JPanel boardWrapper = new JPanel(new BorderLayout());
+        boardWrapper.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); 
+        boardWrapper.add(board, BorderLayout.CENTER);
+        aiModePanel.add(boardWrapper, BorderLayout.CENTER);
+    
+        // Remove the button from normal mode completely --->>> Failed for now
+        if (playVsAI != null && playVsAI.getParent() == controlPanel) {
+            controlPanel.remove(playVsAI);  
+            playVsAI = null;  
+            controlPanel.revalidate();  
+            controlPanel.repaint();    
+        }
+    
+        content.add(aiModePanel);
+        content.validate();
+        content.repaint();
+    }
+    
     // A function to change the chance from White Player to Black Player or vice
     // verse
     // It is made public because it is to be accessed in the Time Class
@@ -294,6 +362,13 @@ public class Main extends JFrame implements MouseListener {
             previous.deselect();
         previous = null;
         chance ^= 1;
+        if (isDrawByInsufficientMaterial()) {
+            System.out.println("Insufficient material found.");
+            triggerDraw("Draw by insufficient material");
+            return; 
+        } else {
+            System.out.println("Insufficient material not found.");
+        }
         if (!end && timer != null) {
             timer.reset();
             timer.start();
@@ -523,7 +598,40 @@ public class Main extends JFrame implements MouseListener {
     private void triggerDraw(String message) {
         gameend(true, message);
     }
-   
+  
+    private boolean isDrawByInsufficientMaterial() {
+
+        List<Piece> whitePieces = getPieces(0, boardState);
+        List<Piece> blackPieces = getPieces(1, boardState);
+    
+       
+        if (whitePieces.size() == 1 && blackPieces.size() == 1) {
+            return true; // King vs King
+        }
+    
+        if (whitePieces.size() == 1 && blackPieces.size() == 2) {
+            Piece otherPiece = blackPieces.stream().filter(p -> !(p instanceof King)).findFirst().orElse(null);
+            if (otherPiece instanceof Knight || otherPiece instanceof Bishop) {
+                return true; // King vs King and Knight/Bishop
+            }
+        } else if (whitePieces.size() == 2 && blackPieces.size() == 1) {
+            Piece otherPiece = whitePieces.stream().filter(p -> !(p instanceof King)).findFirst().orElse(null);
+            if (otherPiece instanceof Knight || otherPiece instanceof Bishop) {
+                return true; // King and Knight/Bishop vs King
+            }
+        } else if (whitePieces.size() == 2 && blackPieces.size() == 2) {
+            Piece whiteBishop = whitePieces.stream().filter(p -> p instanceof Bishop).findFirst().orElse(null);
+            Piece blackBishop = blackPieces.stream().filter(p -> p instanceof Bishop).findFirst().orElse(null);
+    
+            if (whiteBishop != null && blackBishop != null &&
+                ((whiteBishop.getx() + whiteBishop.gety()) % 2 == (blackBishop.getx() + blackBishop.gety()) % 2)) {
+                return true; // King and Bishop (same color) vs King and Bishop (same color)
+            }
+        }
+    
+        return false;
+    }
+  
     @SuppressWarnings("deprecation")
     private void gameend(boolean isDraw, String message) {
         cleandestinations(destinationlist);
