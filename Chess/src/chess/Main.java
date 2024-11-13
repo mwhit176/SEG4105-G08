@@ -76,6 +76,8 @@ public class Main extends JFrame implements MouseListener {
     public static int timeRemaining = 60;
     private static HashMap<String, Integer> stateHash;
     private static int trivialMoveCounter = 0;
+    private static String lastMoveNotation;
+    private static ArrayList<String> movesHistoryNotation = new ArrayList<String>();
 
     public static void main(String[] args) {
 
@@ -609,9 +611,20 @@ public class Main extends JFrame implements MouseListener {
             } else if (c.getpiece() == null || previous.getpiece().getcolor() != c.getpiece().getcolor()) {
                 // This increments move count for rook and king when moved
             	if (c.ispossibledestination()) {
-            	    
-            	    System.out.println(generateNotation(previous.x, previous.y, c.x, c.y, null));
-            	    
+            	    // Check for pawn promotion if moved to final row
+                    if (previous.getpiece() instanceof Pawn && (c.x == 0 || c.x == 7)) {
+                        Piece promotedPiece;
+                        do {
+                            promotedPiece = ((Pawn) previous.getpiece()).promote();
+                        } while (promotedPiece == null);
+                        previous.setPiece(promotedPiece);  // Set the promoted piece in the final cell
+                        lastMoveNotation = generateNotation(previous.x, previous.y, c.x, c.y, getCharacterFromPiece(promotedPiece));
+                    } else {
+                        lastMoveNotation = generateNotation(previous.x, previous.y, c.x, c.y, null);
+                    }
+                    // Temporarily print the notation of the last move
+                    System.out.println(lastMoveNotation);
+                    movesHistoryNotation.add(lastMoveNotation);
                 	if (previous.getpiece() instanceof Rook || previous.getpiece() instanceof King) {
                     	previous.getpiece().incrementMoveCount();
                     }
@@ -657,13 +670,6 @@ public class Main extends JFrame implements MouseListener {
                             resetTrivialMoveCounter();
 	                    }
 	                    c.setPiece(previous.getpiece());
-	                 // Check for pawn promotion if moved to final row
-	                    if (c.getpiece() instanceof Pawn && (c.x == 0 || c.x == 7)) {
-	                        Piece promotedPiece = ((Pawn) c.getpiece()).promote();
-	                        if (promotedPiece != null) {
-	                            c.setPiece(promotedPiece);  // Set the promoted piece in the final cell
-	                        }
-	                    }
                 	}
                     if (previous.ischeck())
                         previous.removecheck();
@@ -988,5 +994,13 @@ public class Main extends JFrame implements MouseListener {
         }
         
         return sb.toString();
+    }
+    
+    private Character getCharacterFromPiece(Piece piece) {
+        if (piece instanceof Queen) return 'q';
+        if (piece instanceof Rook) return 'r';
+        if (piece instanceof Bishop) return 'b';
+        if (piece instanceof Knight) return 'n';
+        return null;
     }
 }
