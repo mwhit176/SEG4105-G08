@@ -521,7 +521,7 @@ public class Main extends JFrame implements MouseListener {
     private void triggerDraw(String message) {
         gameend(true, message);
     }
-
+   
     @SuppressWarnings("deprecation")
     private void gameend(boolean isDraw, String message) {
         cleandestinations(destinationlist);
@@ -657,6 +657,13 @@ public class Main extends JFrame implements MouseListener {
                             resetTrivialMoveCounter();
 	                    }
 	                    c.setPiece(previous.getpiece());
+	                 // Check for pawn promotion if moved to final row
+	                    if (c.getpiece() instanceof Pawn && (c.x == 0 || c.x == 7)) {
+	                        Piece promotedPiece = ((Pawn) c.getpiece()).promote();
+	                        if (promotedPiece != null) {
+	                            c.setPiece(promotedPiece);  // Set the promoted piece in the final cell
+	                        }
+	                    }
                 	}
                     if (previous.ischeck())
                         previous.removecheck();
@@ -932,6 +939,7 @@ public class Main extends JFrame implements MouseListener {
         blackPawns = new ArrayList<Pawn>();
         blackQueens = new ArrayList<Queen>();
         blackRooks = new ArrayList<Rook>();
+        
     }
 
     private static void initializePieces(){
