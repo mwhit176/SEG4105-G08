@@ -30,14 +30,14 @@ public class Cell extends JPanel implements Cloneable {
 
         setLayout(new BorderLayout());
 
-        if ((x + y) % 2 == 0)
+        if ((x + y) % 2 == 1)
             setBackground(new Color(113, 198, 113));
 
         else
             setBackground(Color.white);
 
-        if (p != null)
-            setPiece(p);
+        if (p != null) {
+            setPiece(p);}
     }
 
     // A constructor that takes a cell as argument and returns a new cell will the
@@ -46,7 +46,7 @@ public class Cell extends JPanel implements Cloneable {
         this.x = cell.x;
         this.y = cell.y;
         setLayout(new BorderLayout());
-        if ((x + y) % 2 == 0)
+        if ((x + y) % 2 == 1)
             setBackground(new Color(113, 198, 113));
         else
             setBackground(Color.white);
@@ -58,10 +58,17 @@ public class Cell extends JPanel implements Cloneable {
 
     public void setPiece(Piece p) // Function to inflate a cell with a piece
     {
+        if (content != null) {
+            this.remove(content);  // Remove existing piece image
+        }
         piece = p;
-        ImageIcon img = new javax.swing.ImageIcon(this.getClass().getResource(p.getPath()));
-        content = new JLabel(img);
-        this.add(content);
+        if (p != null) {  // Only attempt to add a piece if it's not null
+            ImageIcon img = new ImageIcon(this.getClass().getResource(p.getPath()));
+            content = new JLabel(img);
+            this.add(content);
+        }
+        revalidate();
+        repaint();
     }
 
     public void removePiece() // Function to remove a piece from the cell
@@ -123,7 +130,7 @@ public class Cell extends JPanel implements Cloneable {
     public void removecheck() // Function to deselect check
     {
         this.setBorder(null);
-        if ((x + y) % 2 == 0)
+        if ((x + y) % 2 == 1)
             setBackground(new Color(113, 198, 113));
         else
             setBackground(Color.white);

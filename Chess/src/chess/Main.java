@@ -76,6 +76,8 @@ public class Main extends JFrame implements MouseListener {
     public static int timeRemaining = 60;
     private static HashMap<String, Integer> stateHash;
     private static int trivialMoveCounter = 0;
+    private static String lastMoveNotation;
+    private static ArrayList<String> movesHistoryNotation = new ArrayList<String>();
 
     public static void main(String[] args) {
 
@@ -226,13 +228,13 @@ public class Main extends JFrame implements MouseListener {
                 else if (i == 7 && j == 5)
                     P = whiteBishops.get(1);
                 else if (i == 0 && j == 3)
-                    P = blackKing;
-                else if (i == 0 && j == 4)
                     P = blackQueens.get(0);
+                else if (i == 0 && j == 4)
+                    P = blackKing;
                 else if (i == 7 && j == 3)
-                    P = whiteKing;
-                else if (i == 7 && j == 4)
                     P = whiteQueens.get(0);
+                else if (i == 7 && j == 4)
+                    P = whiteKing;
                 else if (i == 1)
                     P = blackPawns.get(j);
                 else if (i == 6)
@@ -596,6 +598,7 @@ public class Main extends JFrame implements MouseListener {
     private void triggerDraw(String message) {
         gameend(true, message);
     }
+  
     private boolean isDrawByInsufficientMaterial() {
 
         List<Piece> whitePieces = getPieces(0, boardState);
@@ -627,8 +630,8 @@ public class Main extends JFrame implements MouseListener {
         }
     
         return false;
-    }    
-
+    }
+  
     @SuppressWarnings("deprecation")
     private void gameend(boolean isDraw, String message) {
         cleandestinations(destinationlist);
@@ -716,6 +719,20 @@ public class Main extends JFrame implements MouseListener {
             } else if (c.getpiece() == null || previous.getpiece().getcolor() != c.getpiece().getcolor()) {
                 // This increments move count for rook and king when moved
             	if (c.ispossibledestination()) {
+            	    // Check for pawn promotion if moved to final row
+                    if (previous.getpiece() instanceof Pawn && (c.x == 0 || c.x == 7)) {
+                        Piece promotedPiece;
+                        do {
+                            promotedPiece = ((Pawn) previous.getpiece()).promote();
+                        } while (promotedPiece == null);
+                        previous.setPiece(promotedPiece);  // Set the promoted piece in the final cell
+                        lastMoveNotation = generateNotation(previous.x, previous.y, c.x, c.y, getCharacterFromPiece(promotedPiece));
+                    } else {
+                        lastMoveNotation = generateNotation(previous.x, previous.y, c.x, c.y, null);
+                    }
+                    // Temporarily print the notation of the last move
+                    System.out.println(lastMoveNotation);
+                    movesHistoryNotation.add(lastMoveNotation);
                 	if (previous.getpiece() instanceof Rook || previous.getpiece() instanceof King) {
                     	previous.getpiece().incrementMoveCount();
                     }
@@ -1036,6 +1053,7 @@ public class Main extends JFrame implements MouseListener {
         blackPawns = new ArrayList<Pawn>();
         blackQueens = new ArrayList<Queen>();
         blackRooks = new ArrayList<Rook>();
+        
     }
 
     private static void initializePieces(){
@@ -1049,10 +1067,10 @@ public class Main extends JFrame implements MouseListener {
                 new Bishop("WB02", "White_Bishop.png", 0, 7, 5));
         blackBishops = Arrays.asList(new Bishop("BB01", "Black_Bishop.png", 1, 0, 2),
                 new Bishop("BB02", "Black_Bishop.png", 1, 0, 5));
-        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0, 7, 4));
-        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1, 0, 4));
-        whiteKing = new King("WK", "White_King.png", 0, 7, 3);
-        blackKing = new King("BK", "Black_King.png", 1, 0, 3);
+        whiteQueens = Arrays.asList(new Queen("WQ", "White_Queen.png", 0, 7, 3));
+        blackQueens = Arrays.asList(new Queen("BQ", "Black_Queen.png", 1, 0, 3));
+        whiteKing = new King("WK", "White_King.png", 0, 7, 4);
+        blackKing = new King("BK", "Black_King.png", 1, 0, 4);
         whitePawns = new ArrayList<Pawn>();
         for (int i = 0; i < 8; i++) {
             whitePawns.add(new Pawn("WP0" + (i + 1), "White_Pawn.png", 0, 6, i));
@@ -1069,5 +1087,28 @@ public class Main extends JFrame implements MouseListener {
 
     private void increaseTrivialMoveCounter(){
         trivialMoveCounter++;
+    }
+    
+    private String generateNotation(int fromX, int fromY, int toX, int toY, Character promo) {
+        StringBuilder sb = new StringBuilder();
+        sb.append((char)('a' + fromY));
+        sb.append(8 - fromX);
+        
+        sb.append((char)('a' + toY));
+        sb.append(8 - toX);
+        
+        if (promo != null) {
+            sb.append(Character.toLowerCase(promo.charValue()));
+        }
+        
+        return sb.toString();
+    }
+    
+    private Character getCharacterFromPiece(Piece piece) {
+        if (piece instanceof Queen) return 'q';
+        if (piece instanceof Rook) return 'r';
+        if (piece instanceof Bishop) return 'b';
+        if (piece instanceof Knight) return 'n';
+        return null;
     }
 }
