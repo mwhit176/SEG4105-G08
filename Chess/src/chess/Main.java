@@ -7,6 +7,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pieces.*;
+import engine.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -78,7 +79,8 @@ public class Main extends JFrame implements MouseListener {
     private static int trivialMoveCounter = 0;
     private static String lastMoveNotation;
     private static ArrayList<String> movesHistoryNotation = new ArrayList<String>();
-
+    private static boolean AIMode = false;
+    private static Stockfish bot;
     public static void main(String[] args) {
 
         initializePieces();
@@ -297,7 +299,19 @@ public class Main extends JFrame implements MouseListener {
 
     private void switchToAIMode() {
         content.removeAll();
-    
+        AIMode = true;
+        boolean done = false;
+        bot = new Stockfish();
+        if (bot.startEngine()) {
+        	System.out.println("The engine started succesfully");
+        } else {
+        	System.out.println("The engine did not start successfully");
+        }
+        bot.sendCommand("uci");
+        bot.getOutput(0);
+        bot.sendCommand("ucinewgame");
+        bot.sendCommand("isready");
+        bot.sendCommand("position startpos");
         JPanel aiModePanel = new JPanel(new BorderLayout());
     
         JLabel statusDisplay = new JLabel("Play vs AI Mode", JLabel.CENTER);
@@ -733,6 +747,11 @@ public class Main extends JFrame implements MouseListener {
                     // Temporarily print the notation of the last move
                     System.out.println(lastMoveNotation);
                     movesHistoryNotation.add(lastMoveNotation);
+                    String moves;
+                    if (AIMode) {
+                    	moves = String.join(" ", movesHistoryNotation);
+                    	bot.sendCommand("position startpos moves " + moves);
+                    }
                 	if (previous.getpiece() instanceof Rook || previous.getpiece() instanceof King) {
                     	previous.getpiece().incrementMoveCount();
                     }
@@ -819,7 +838,7 @@ public class Main extends JFrame implements MouseListener {
                         triggerDraw("50 Move Rule");
                     }
                     
-                    if (!end) {
+                    if (!end && !AIMode) {
                         timer.reset();
                         timer.start();
                     }
