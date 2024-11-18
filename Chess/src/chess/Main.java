@@ -1222,7 +1222,7 @@ public class Main extends JFrame implements MouseListener {
         else if (piece instanceof King){
             //king side
             if ((botMove.fromColumn - botMove.toColumn) == -2){
-                Cell rookCell = boardState[botMove.fromRow][0];
+                Cell rookCell = boardState[botMove.fromRow][7];
                 Piece rook = rookCell.getpiece();
                 boardState[botMove.fromRow][botMove.toColumn - 1].setPiece(rook);
                 rook.setx(botMove.fromRow);
@@ -1232,7 +1232,7 @@ public class Main extends JFrame implements MouseListener {
 
             //queen side
             if ((botMove.fromColumn - botMove.toColumn) == 2){
-                Cell rookCell = boardState[botMove.fromRow][7];
+                Cell rookCell = boardState[botMove.fromRow][0];
                 Piece rook = rookCell.getpiece();
                 boardState[botMove.fromRow][botMove.toColumn + 1].setPiece(rook);
                 rook.setx(botMove.fromRow);
