@@ -720,6 +720,7 @@ public class Main extends JFrame implements MouseListener {
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
         stateHash.clear();
+        movesHistoryNotation = new ArrayList<String>();
     }
 
     // These are the abstract function of the parent class. Only relevant method
@@ -926,6 +927,7 @@ public class Main extends JFrame implements MouseListener {
                 JOptionPane.showMessageDialog(controlPanel, "Fill in the details");
                 return;
             }
+            AIMode = false;
             White.updateGamesPlayed();
             White.Update_Player();
             Black.updateGamesPlayed();
@@ -1336,7 +1338,7 @@ public class Main extends JFrame implements MouseListener {
         Piece promotedPiece;
 
         switch (piece) {
-            case 'B':
+            case 'b':
                 if(color == 0){
                     promotedPiece = new Bishop(id, "White_Bishop.png", color, x, y);
                 }
@@ -1344,7 +1346,7 @@ public class Main extends JFrame implements MouseListener {
                     promotedPiece = new Bishop(id, "Black_Bishop.png", color, x, y);
                 }
                 break;
-            case 'R':
+            case 'r':
                 if(color == 0){
                     promotedPiece = new Rook(id, "White_Rook.png", color,  x, y);
                 }
@@ -1352,7 +1354,7 @@ public class Main extends JFrame implements MouseListener {
                     promotedPiece = new Rook(id, "Black_Rook.png", color,  x, y);
                 }
                 break;
-            case 'N':
+            case 'n':
                 if(color == 0){
                     promotedPiece = new Knight (id, "White_Knight.png", color,  x, y);
                 }
