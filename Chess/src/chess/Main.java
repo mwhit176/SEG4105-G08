@@ -362,6 +362,7 @@ public class Main extends JFrame implements MouseListener {
         }
 
         initializeTurnOrder(0);
+        chance = 0;
 
         content.add(aiModePanel);
         content.validate();
@@ -1156,6 +1157,7 @@ public class Main extends JFrame implements MouseListener {
     private void initializeTurnOrder(int human_color){
         humanColor = human_color;
         isHumanTurn = humanColor == 0;
+        chance = 0;
     }
 
     private void botMakeMove(){
@@ -1231,9 +1233,7 @@ public class Main extends JFrame implements MouseListener {
                 rook.sety(botMove.toColumn - 1);
                 rookCell.setPiece(null);
             }
-
-            //queen side
-            if ((botMove.fromColumn - botMove.toColumn) == 2){
+            else if ((botMove.fromColumn - botMove.toColumn) == 2){
                 Cell rookCell = boardState[botMove.fromRow][0];
                 Piece rook = rookCell.getpiece();
                 boardState[botMove.fromRow][botMove.toColumn + 1].setPiece(rook);
@@ -1241,6 +1241,10 @@ public class Main extends JFrame implements MouseListener {
                 rook.sety(botMove.toColumn + 1);
                 rookCell.setPiece(null);
             }
+            piece.incrementMoveCount();
+        }
+        else if (piece instanceof Rook){
+            piece.incrementMoveCount();
         }
 
         //handle capture
