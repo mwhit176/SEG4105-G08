@@ -845,6 +845,7 @@ public class Main extends JFrame implements MouseListener {
                             if (previous.getpiece() != null)
                                 previous.removePiece();
                             triggerMate();
+                            return;
                         }
                     }
                     if (getKing(chance).isindanger(boardState) == false)
