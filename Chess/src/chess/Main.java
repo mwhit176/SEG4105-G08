@@ -81,6 +81,10 @@ public class Main extends JFrame implements MouseListener {
     private static ArrayList<String> movesHistoryNotation = new ArrayList<String>();
     private static boolean AIMode = false;
     private static Stockfish bot;
+    private static int humanColor = 0;
+    private static boolean isHumanTurn = true;
+    private static int ai_depth = 10;
+
     public static void main(String[] args) {
 
         initializePieces();
@@ -356,10 +360,15 @@ public class Main extends JFrame implements MouseListener {
             controlPanel.revalidate();  
             controlPanel.repaint();    
         }
-    
+
+        initializeTurnOrder(0);
+        chance = 0;
+
         content.add(aiModePanel);
         content.validate();
         content.repaint();
+
+        botMakeMove();
     }
     
     // A function to change the chance from White Player to Black Player or vice
@@ -649,11 +658,14 @@ public class Main extends JFrame implements MouseListener {
     @SuppressWarnings("deprecation")
     private void gameend(boolean isDraw, String message) {
         cleandestinations(destinationlist);
-        displayTime.disable();
-        timer.countdownTimer.stop();
+
+        if (!AIMode){
+            displayTime.disable();
+            timer.countdownTimer.stop();
+        }
         if (previous != null)
             previous.removePiece();
-        if (!isDraw) {
+        if (!isDraw && !AIMode) {
             if (chance == 0) {
                 White.updateGamesWon();
                 White.Update_Player();
@@ -664,6 +676,11 @@ public class Main extends JFrame implements MouseListener {
                 winner = Black.name();
             }
             JOptionPane.showMessageDialog(board, "Checkmate!!!\n" + winner + " wins");
+        } else if (AIMode && !isDraw) {
+            String winner_ai = "";
+            if (chance == humanColor) winner_ai = "player";
+            else winner_ai = "computer";
+            JOptionPane.showMessageDialog(board, "Checkmate!!!\n" + winner_ai + " wins");
         } else {
             JOptionPane.showMessageDialog(board, "Draw.\n" + message);
         }
@@ -673,13 +690,20 @@ public class Main extends JFrame implements MouseListener {
         displayTime.remove(label);
 
         displayTime.add(start);
-        showPlayer.remove(mov);
-        showPlayer.remove(CHNC);
+
+        if (!AIMode){
+            showPlayer.remove(mov);
+            showPlayer.remove(CHNC);
+        }
         showPlayer.revalidate();
         showPlayer.add(timeSlider);
 
         split.remove(board);
-        split.add(temp);
+
+        if (!AIMode){
+            split.add(temp);
+        }
+        
         WNewPlayer.enable();
         BNewPlayer.enable();
         wselect.enable();
@@ -697,6 +721,7 @@ public class Main extends JFrame implements MouseListener {
         Mainboard.setVisible(true);
         Mainboard.setResizable(false);
         stateHash.clear();
+        movesHistoryNotation = new ArrayList<String>();
     }
 
     // These are the abstract function of the parent class. Only relevant method
@@ -820,6 +845,7 @@ public class Main extends JFrame implements MouseListener {
                             if (previous.getpiece() != null)
                                 previous.removePiece();
                             triggerMate();
+                            return;
                         }
                     }
                     if (getKing(chance).isindanger(boardState) == false)
@@ -828,20 +854,17 @@ public class Main extends JFrame implements MouseListener {
                     c.getpiece().sety(c.y);
                     changechance();
                     
-                    //Check for stalemate
-                    if (isStalemate(chance, boardState)) {
-                    	triggerDraw("Stalemate");
-                    }
-
-                    increaseTrivialMoveCounter();
-                    if (trivialMoveCounter >= 50){
-                        triggerDraw("50 Move Rule");
-                    }
-                    
                     if (!end && !AIMode) {
                         timer.reset();
                         timer.start();
                     }
+
+                    checkDraw();
+
+                    if (AIMode){
+                        isHumanTurn = false;
+                        botMakeMove();
+                    } 
                 }
                 if (previous != null) {
                     previous.deselect();
@@ -906,6 +929,7 @@ public class Main extends JFrame implements MouseListener {
                 JOptionPane.showMessageDialog(controlPanel, "Fill in the details");
                 return;
             }
+            AIMode = false;
             White.updateGamesPlayed();
             White.Update_Player();
             Black.updateGamesPlayed();
@@ -1129,5 +1153,231 @@ public class Main extends JFrame implements MouseListener {
         if (piece instanceof Bishop) return 'b';
         if (piece instanceof Knight) return 'n';
         return null;
+    }
+
+    private void initializeTurnOrder(int human_color){
+        humanColor = human_color;
+        isHumanTurn = humanColor == 0;
+        chance = 0;
+    }
+
+    private void botMakeMove(){
+        if (isHumanTurn) return;
+
+        bot.sendCommand("go depth " + ai_depth);
+        String response, bestMove = null;
+        boolean nextTokenBestMove = false;
+        int i = 0;
+        while (++i > 0){
+            response = bot.getOutput(0);
+
+            if (response == null || response.isEmpty()){
+                continue;
+            }
+            String[] tokens = response.split("\\s+");
+
+            if (nextTokenBestMove && tokens.length > 0) {
+                // Previous iteration was no man's land
+                bestMove = tokens[0];
+                break;
+            }
+            int moveToken = Arrays.asList(tokens).indexOf("bestmove") + 1;
+
+            if (moveToken > 0) {
+                if (moveToken < tokens.length) {
+                    bestMove = tokens[moveToken];
+                    break;
+                } else {
+                    // No man's land: the buffer ended at "bestmove"
+                    nextTokenBestMove = true;
+                }
+            }
+        }
+        
+        System.out.println("move: " + bestMove + ", it=" + i);
+        movesHistoryNotation.add(bestMove);
+
+        MoveResponse botMove = transformUCI(bestMove);
+        Cell fromCell = boardState[botMove.fromRow][botMove.fromColumn];
+        Cell toCell = boardState[botMove.toRow][botMove.toColumn];
+
+        resetPawnsSkipped();
+
+        Piece piece = fromCell.getpiece();
+
+        if (piece instanceof Pawn){
+            resetTrivialMoveCounter();
+
+            //handle promotion
+            if(botMove.promotion != '\0'){
+                piece = promotePawn(botMove.fromRow, botMove.fromColumn, piece.getcolor(), botMove.promotion, piece.getId());
+            }
+
+            //handle jump
+            if (Math.abs(botMove.toRow - botMove.fromRow) == 2){
+                ((Pawn)piece).setJustSkipped(true);
+            } 
+
+            //handle en passsant
+            if (botMove.fromColumn != botMove.toColumn && toCell.getpiece() == null){
+                Cell captureCell = boardState[botMove.fromRow][botMove.toColumn];
+                captureCell.removePiece();
+            }
+        }
+        else if (piece instanceof King){
+            //king side
+            if ((botMove.fromColumn - botMove.toColumn) == -2){
+                Cell rookCell = boardState[botMove.fromRow][7];
+                Piece rook = rookCell.getpiece();
+                boardState[botMove.fromRow][botMove.toColumn - 1].setPiece(rook);
+                rook.setx(botMove.fromRow);
+                rook.sety(botMove.toColumn - 1);
+                rookCell.setPiece(null);
+            }
+            else if ((botMove.fromColumn - botMove.toColumn) == 2){
+                Cell rookCell = boardState[botMove.fromRow][0];
+                Piece rook = rookCell.getpiece();
+                boardState[botMove.fromRow][botMove.toColumn + 1].setPiece(rook);
+                rook.setx(botMove.fromRow);
+                rook.sety(botMove.toColumn + 1);
+                rookCell.setPiece(null);
+            }
+            piece.incrementMoveCount();
+        }
+        else if (piece instanceof Rook){
+            piece.incrementMoveCount();
+        }
+
+        //handle capture
+        if (toCell.getpiece() != null){
+            toCell.removePiece();
+            resetTrivialMoveCounter();
+        } 
+
+        //move pieve
+        toCell.setPiece(piece);
+        fromCell.setPiece(null);
+
+        increaseTrivialMoveCounter();
+        
+        piece.setx(botMove.toRow);
+        piece.sety(botMove.toColumn);
+        checkDraw();
+
+        //if king is in danger highlight the opponents king in red
+        if (getKing(chance ^ 1).isindanger(boardState)) {
+            boardState[getKing(chance ^ 1).getx()][getKing(chance ^ 1).gety()].setcheck();
+            if (checkmate(getKing(chance ^ 1).getcolor())) {
+                triggerMate();
+            }
+        }
+        if (getKing(chance).isindanger(boardState) == false)
+            boardState[getKing(chance).getx()][getKing(chance).gety()].removecheck();
+
+        changechance();
+    }
+
+    private void checkDraw(){
+        if (isStalemate(chance, boardState)) {
+            triggerDraw("Stalemate");
+        }
+
+        increaseTrivialMoveCounter();
+        if (trivialMoveCounter >= 50){
+            triggerDraw("50 Move Rule");
+        }
+    }
+
+    private MoveResponse transformUCI(String uci){
+        int fromColumn, toColumn, fromRow, toRow;
+        char[] moveT = uci.toCharArray();
+
+        fromColumn = moveT[0] - 'a';
+        fromRow = '8' - moveT[1];
+
+        toColumn = moveT[2] - 'a';
+        toRow = '8' - moveT[3];
+
+        MoveResponse response;
+        if (moveT.length > 4){
+            response = new MoveResponse(toColumn, toRow, fromColumn, fromRow, moveT[4]);
+        } else {
+            response = new MoveResponse(toColumn, toRow, fromColumn, fromRow);
+        }
+
+        return response;
+    }
+
+    private class MoveResponse{
+        public int toColumn, toRow, fromColumn, fromRow;
+        public char promotion;
+
+        public MoveResponse(int toColumn, int toRow, int fromColumn, int fromRow, char promotion){
+            this.toColumn = toColumn;
+            this.toRow = toRow;
+            this.fromColumn = fromColumn;
+            this.fromRow = fromRow;
+            this.promotion = promotion;
+        }
+
+        public MoveResponse(int toColumn, int toRow, int fromColumn, int fromRow){
+            this.toColumn = toColumn;
+            this.toRow = toRow;
+            this.fromColumn = fromColumn;
+            this.fromRow = fromRow;
+            this.promotion = '\0';
+        }
+    }
+
+    private void resetPawnsSkipped(){
+        for (Pawn pawn : blackPawns) {
+            pawn.setJustSkipped(false);
+        }
+
+        for (Pawn pawn : whitePawns) {
+            pawn.setJustSkipped(false);
+        }
+    }
+
+    private Piece promotePawn(int x, int y, int color, char piece, String id){
+        Piece promotedPiece;
+
+        switch (piece) {
+            case 'b':
+                if(color == 0){
+                    promotedPiece = new Bishop(id, "White_Bishop.png", color, x, y);
+                }
+                else {
+                    promotedPiece = new Bishop(id, "Black_Bishop.png", color, x, y);
+                }
+                break;
+            case 'r':
+                if(color == 0){
+                    promotedPiece = new Rook(id, "White_Rook.png", color,  x, y);
+                }
+                else {
+                    promotedPiece = new Rook(id, "Black_Rook.png", color,  x, y);
+                }
+                break;
+            case 'n':
+                if(color == 0){
+                    promotedPiece = new Knight (id, "White_Knight.png", color,  x, y);
+                }
+                else {
+                    promotedPiece = new Knight(id, "Black_Knight.png", color,  x, y);
+                }
+                break;
+            default:
+                //make queen by default
+                if(color == 0){
+                    promotedPiece = new Queen(id, "White_Queen.png", color, x, y);
+                }
+                else {
+                    promotedPiece = new Queen(id, "Black_Queen.png", color, x, y);
+                }
+                break;
+        }        
+
+        return promotedPiece;
     }
 }
