@@ -83,7 +83,7 @@ public class Main extends JFrame implements MouseListener {
     private static Stockfish bot;
     private static int humanColor = 0;
     private static boolean isHumanTurn = true;
-    private static int ai_depth = 10;
+    private static int ai_depth = 1;
 
     public static void main(String[] args) {
 
@@ -1273,6 +1273,9 @@ public class Main extends JFrame implements MouseListener {
         }
         if (getKing(chance).isindanger(boardState) == false)
             boardState[getKing(chance).getx()][getKing(chance).gety()].removecheck();
+        if (piece instanceof King){
+            boardState[botMove.fromRow][botMove.fromColumn].removecheck();
+        }
 
         changechance();
     }
